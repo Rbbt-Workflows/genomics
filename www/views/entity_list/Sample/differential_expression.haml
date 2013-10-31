@@ -1,0 +1,61 @@
+- study = list.study
+
+- action_card = ActionCard.new do
+  - if study.matrices.length > 1
+    - input :matrix, :select, "Matrix to use", study.matrices.first, :select_options => study.matrices
+  - else
+    - input :matrix, :string, "Matrix to use", study.matrices.first, :hide => true
+  - input :contrast, :select, "Background list", nil, :select_options => {'none' => 'Rest of samples', 'genotyped' => "Genotyped samples"}, :html_options => {:class => 'favourite_lists', :type => 'Sample'}
+  - input :threshold, :float, "Significance threshold", 0.1
+
+ 
+- action_card.require :threshold
+= action_card_render action_card do
+  - type = matrix
+  - matrix = study.matrix(matrix, "Ensembl Gene ID")
+
+  - case contrast
+  - when nil, 'none'
+    - rest = study.samples - list
+  - when 'genotyped'
+    - rest = study.samples.select_by(:has_genotype?) 
+  - else
+    - rest = Entity::List.load_list("Sample", contrast, user)
+
+  - list = study.match_samples(list)
+  - rest = study.match_samples(rest) - list
+
+  - diffs = matrix.sample_differences(list, rest)
+
+  - Open.open(diffs) do |stream|
+    - if not TSV.parse_header(stream).fields.include? "p.values"
+      - raise "The where not enough samples with gene expression data to obtain a p-value"
+     
+
+  - threshold = threshold.to_f
+
+  - entities = nil
+  = table :table_id => "Overexpressed (#{type}) in #{list_id}", :page => "1~p.values" do
+    - tsv = Expression.top_up(diffs, threshold)
+    - tsv.entity_options = {:organism => study.organism}
+    - entities = tsv.keys
+    - tsv.cast = :to_f
+    - tsv
+
+  - if entities.respond_to? :link
+    %p
+      Entity list:
+      = entities.list_link :length, "Overexpressed (#{type}) in #{list_id}"
+
+ 
+  = table :table_id => "Underexpressed (#{type}) in #{list_id}" do
+    - tsv = Expression.top_down(diffs, threshold)
+    - tsv.entity_options = {:organism => study.organism}
+    - entities = tsv.keys
+    - tsv.cast = :to_f
+    - tsv
+
+  - if entities.respond_to? :link
+    %p
+      Entity list:
+      = entities.list_link :length, "Underexpressed (#{type}) in #{list_id}"

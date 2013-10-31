@@ -1,0 +1,5 @@
+- study = entity
+- matches = study.knowledge_base.all(:sample_genes, :persist => false)
+- ddd matches.length
+
+= matches.target_entity.uniq.list_link :length

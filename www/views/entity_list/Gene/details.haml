@@ -1,0 +1,20 @@
+- action_card = ActionCard.new
+ 
+= action_card_render action_card do
+
+  - header "Start", "NumericValue"
+  - header "End", "NumericValue"
+  - header "Size", "NumericValue"
+  - header "Protein size", "NumericValue"
+  = table :table_id => "Details for #{ list_id }" do
+    - tsv = TSV.setup({}, :key_field => "Ensembl Gene ID", :fields => ["Biotype", "Chromosome", "Start", "End", "Strand", "Size", "Protein size"], :type => :list, :namespace => list.organism)
+    - list.ensembl.compact.each do |gene|
+      - next if gene.nil? or gene.chr_range.nil?
+      
+      - protein = gene.proteins.sort_by{|s| s.sequence.to_s.length}.last
+
+      - protein_size = protein.sequence.length if protein and protein.sequence
+
+      - tsv[gene] = [gene.biotype, gene.chromosome, gene.chr_range.begin, gene.chr_range.end, gene.strand, gene.chr_range.end - gene.chr_range.begin, protein_size]
+    - tsv
+

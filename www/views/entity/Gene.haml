@@ -1,0 +1,106 @@
+- entity_card = EntityCard.new(entity)
+- start = Time.now
+
+- entity_card.description do
+  %p= entity.description
+
+- entity_card.long_name do
+  = entity.long_name
+
+- entity_card.meta do
+  %dl
+
+    %dt Gene in Ensembl: 
+    %dd
+      %a(href="http://#{Misc.ensembl_server(entity.organism)}/#{Organism.scientific_name(entity.organism).sub(" ","_")}/Gene/Summary?g=#{entity.to "Ensembl Gene ID"}")= entity.to "Ensembl Gene ID"
+    = fragment do
+      %dt Gene in Entrez:
+
+      %dd
+        %a(href="http://www.ncbi.nlm.nih.gov/gene/#{entity.to "Entrez Gene ID"}")= entity.to "Entrez Gene ID"
+
+  = fragment do 
+    %dl
+
+      %dt Chromosome
+      %dd= entity.chromosome
+
+      %dt Chromosome Range
+      %dd= ChromosomeRange.setup([entity.chromosome, entity.chr_range.begin, entity.chr_range.end] * ":", entity.organism).link
+
+      %dt Strand
+      %dd= entity.strand == "1" ? "Forward (Watson) Strand" : "Reverse (Crick) Strand"
+
+      %dt Exon bases
+      %dd
+        - bases = Gene.gene_list_exon_bases(entity.make_list)
+        - if bases == 0
+          Could not determine the exome size of this gene
+        - else
+          = bases
+
+      %dt Isoforms (# aa; # PDBs)
+      %dd
+        - if entity.transcripts and entity.transcripts.any?
+          %ul.clean_list
+            - entity.transcripts.protein.compact.reject{|protein| protein.empty?}.collect{|protein| [protein, protein.pdbs || []]}.sort{|a,b| (d = a[1].length <=> b[1].length) == 0 ? (a[0].sequence || "").length <=> (b[0].sequence || "").length : d}.reverse.collect{|protein,pdbs| "#{protein.link} (#{(protein.sequence || "").length}; #{pdbs.length})" }.each do |iso|
+              %li= iso
+
+        - else
+          No transcript found for this gene
+
+  = fragment do 
+    - cosmic_mutations = entity.COSMIC_mutations.compact.select_by(:relevant?)
+    - protein = entity.transcripts.protein.flatten.compact.sort_by{|p| (p.sequence ||[]).length}.last if entity.proteins and entity.proteins.any?
+    - protein_mutations = Annotated.flatten(cosmic_mutations.mutated_isoforms.compact).select{|mi| mi.protein == protein} if cosmic_mutations
+    - if protein and protein_mutations and protein_mutations.any?
+      - positions = protein_mutations.position.sort.sort 
+      - distances = positions[1..-1].zip(positions).collect{|p1,p2| p1 - p2}
+      - mean_mut_distance = Misc.mean distances
+      - protein_size = protein.sequence.length
+      - hotspot = distances.inject(0){|acc,e|  acc += 1 if e == 0; acc}.to_f / distances.length
+      - unif = (0..1000).to_a.collect{ rand }
+      - scaled_positions = positions.collect{|p| p.to_f / protein_size}
+      - hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
+      %dl
+        %dt COSMIC Mutations
+        %dd 
+          = cosmic_mutations.list_link :length, "COSMIC mutations (relevant) over #{entity.name || entity}"
+
+        %dt Mutations / Protein size
+        %dd 
+          = "%.3g" % (cosmic_mutations.length.to_f / protein_size)
+
+        %dt Recurrence %
+        %dd== #{"%.3g" % (hotspot * 100)} %
+
+        %dt Hotspot statistic
+        %dd= "%.5g" % hotspot_stat
+
+
+- list_container = ListContainer.new
+
+- list_container.add "GeneRIF Articles" do 
+  - entity.articles
+
+- list_container.add "PINA Interactors of #{entity.name || entity}", entity.pina_interactors, "PINA Interactors"
+- list_container.add "String Interactors of #{entity.name || entity}", entity.string_interactors, "String Interactors"
+- list_container.add "Transcription Targets of #{entity.name || entity}", entity.transcription_targets, "Transcription Targets"
+- list_container.add "Transcription Regulators of #{entity.name || entity}", entity.transcription_regulators, "Transcription Regulators"
+- list_container.add "Kegg Pathways for #{entity.name || entity}", entity.to_kegg.nil? ? [] : entity.to_kegg.kegg_pathways, "Kegg Pathways"
+- list_container.add "NCI Nature Pathways for #{entity.name || entity}", entity.nature_pathways, "NCI Nature Pathways"
+- list_container.add "GO BP Terms for #{entity.name || entity}", entity.go_bp_terms, "GO BP Terms"
+- list_container.add "GO CC Terms for #{entity.name || entity}", entity.go_cc_terms, "GO CC Terms"
+- list_container.add "GO MF Terms for #{entity.name || entity}", entity.go_mf_terms, "GO MF Terms"
+- list_container.add "Pfam Domains of #{entity.name || entity}", entity.pfam_domains , "Pfam Domains"
+- list_container.add "InterPro Domains of #{entity.name || entity}", InterProDomain.setup(entity.proteins.interpro_domains.compact.flatten, entity.organism), "InterPro Domains" if entity.proteins.any?
+
+- entity_card.list_container = list_container
+
+- entity_card.action_controller = default_action_controller(entity)
+
+- ddd "RENDER"
+= entity_card_render entity_card
+
+- ddd "DONE: #{Time.now - start}"
+
