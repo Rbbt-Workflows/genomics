@@ -12,19 +12,19 @@
     %dt Samples with clinical annotations
     %dd= samples.list_link :length, "Samples in #{ entity }"
 
-    - if entity.has_genotypes?
+    - if entity.respond_to?(:has_genotypes?) and entity.has_genotypes?
       - samples = entity.cohort.fields
       - Sample.setup(samples, entity)
       %dt Genotyped samples
       %dd= samples.list_link :length, "Genotyped samples in #{ entity }"
 
-    - if entity.has_cnv?
+    - if entity.respond_to?(:has_cnv?) and entity.has_cnv?
       - samples = entity.cnv_cohort.keys
       - Sample.setup(samples, entity)
       %dt CNV samples
       %dd= samples.list_link :length, "CNV samples in #{ entity }"
 
-    - if entity.matrices.include? "gene_expression"
+    - if entity.respond_to?(:matrices) and entity.matrices.include? "gene_expression"
       - samples = entity.matrix(:gene_expression).samples
       - Sample.setup(samples, entity)
       %dt Gene expression samples

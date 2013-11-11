@@ -17,7 +17,7 @@
   - table_options = nil
 
   - if user
-    - studies = user_studies[user] || []
+    - studies = respond_to?(:user_studies)? user_studies[user] || [] : []
     - study = studies.select{|s| list_id =~ / #{s}$/}.first
     - studies = [study] if study
     = table table_options do
