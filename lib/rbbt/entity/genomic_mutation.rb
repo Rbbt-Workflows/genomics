@@ -303,7 +303,7 @@ module GenomicMutation
   end
 
   property :exon_junctions => :array do
-    Sequence.job(:exon_junctions_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).exec.chunked_values_at(self)
+    Sequence.job(:exon_junctions_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run.chunked_values_at(self)
   end
 
   property :over_range? => :array2single do |range_chr,range|
