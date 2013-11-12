@@ -148,10 +148,6 @@ module GenomicMutation
     self.clean_annotations.collect{|mut| mut.split(":")[2]}
   end
 
-  property :reference => :array2single do
-    Sequence.reference_allele_at_chr_positions(organism, chromosome, position)
-  end
-
   property :gene_strand_reference => :array2single do
     genes = self.genes
     gene_strand = Misc.process_to_hash(genes.compact.flatten){|list| list.any? ? list.strand : []}
@@ -192,7 +188,7 @@ module GenomicMutation
   end
 
   property :reference => :array2single do
-    tsv = Sequence.reference_allele_at_genomic_positions(organism, self.clean_annotations)
+    tsv = Sequence.job(:reference_allele_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run
     tsv.chunked_values_at self
   end
 
