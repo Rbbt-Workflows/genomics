@@ -33,6 +33,7 @@
 
       %dt Exon bases
       %dd
+        - genes = entity.make_list.ensembl
         - bases = Gene.gene_list_exon_bases(entity.make_list)
         - if bases == 0
           Could not determine the exome size of this gene

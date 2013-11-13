@@ -33,44 +33,84 @@ module Gene
     false
   end
 
-  def self.gene_list_bases(genes)
-    genes = genes.ensembl
-    genes = genes.annotate([genes]) unless Array === genes
-    chromosome_genes = {}
-    Misc.process_to_hash(genes){|genes| genes.chromosome }.each{|gene, chr| chromosome_genes[chr] ||= []; chromosome_genes[chr] << gene}
-    total = 0
-    chromosome_genes.each do |chr,gs|
-      next if chr.nil?
-      total += Misc.total_length(genes.annotate(gs).chr_range.compact)
+  #def self.gene_list_bases(genes)
+  #  genes = genes.ensembl
+  #  genes = genes.annotate([genes]) unless Array === genes
+  #  chromosome_genes = {}
+  #  Misc.process_to_hash(genes){|genes| genes.chromosome }.each{|gene, chr| chromosome_genes[chr] ||= []; chromosome_genes[chr] << gene}
+  #  total = 0
+  #  chromosome_genes.each do |chr,gs|
+  #    next if chr.nil?
+  #    total += Misc.total_length(genes.annotate(gs).chr_range.compact)
+  #  end
+  #  
+  #  total
+  #end
+
+  #def self.gene_list_exon_bases(genes)
+  #  genes = genes.ensembl
+  #  chromosome_genes = {}
+  #  Misc.process_to_hash(genes){|genes| genes.chromosome}.each{|gene, chr| chromosome_genes[chr] ||= []; chromosome_genes[chr] << gene}
+
+  #  @@exon_range_tsv ||= {}
+  #  organism = genes.organism
+  #  @@exon_range_tsv[organism] ||= Organism.exons(organism).tsv :persist => true, :fields => ["Exon Chr Start", "Exon Chr End"], :type => :list, :cast => :to_i, :unnamed => true
+  #  total = 0
+
+  #  chromosome_genes.each do |chr,gs|
+  #    next if chr.nil?
+  #    exons = genes.annotate(gs).transcripts.compact.flatten.exons.compact.flatten.uniq
+
+  #    exon_ranges = exons.collect{|exon|
+  #      Log.low "Exon #{ exon } does not have range" unless @@exon_range_tsv[organism].include? exon
+  #      next unless @@exon_range_tsv[organism].include? exon
+  #      pos = @@exon_range_tsv[organism][exon]
+  #      (pos.first..pos.last)
+  #    }.compact
+  #    total += Misc.total_length(exon_ranges)
+  #  end
+  #  
+  #  total
+  #end
+
+  def self.gene_list_bases(genes, organism = nil)
+    if genes.respond_to? :orgnanism
+      organism = genes.organism if organism.nil?
+      genes = genes.clean_annotations
     end
-    
-    total
+
+    organism ||= "Hsa"
+
+    @@gene_start_end ||= {}
+    gene_start_end = @@gene_start_end[organism] ||= Organism.gene_positions(organism).tsv(:persist => true, :key_field => "Ensembl Gene ID", :fields => ["Gene Start", "Gene End"], :type => :list, :cast => :to_i, :unmamed => true)
+
+    ranges = genes.collect{|gene| start, eend = gene_start_end[gene]; (start..eend) }
+    Misc.total_length(ranges)
   end
 
-  def self.gene_list_exon_bases(genes)
-    genes = genes.ensembl
-    chromosome_genes = {}
-    Misc.process_to_hash(genes){|genes| genes.chromosome}.each{|gene, chr| chromosome_genes[chr] ||= []; chromosome_genes[chr] << gene}
+  def self.gene_list_exon_bases(genes, organism = nil)
+    if genes.respond_to? :orgnanism
+      organism = genes.organism if organism.nil?
+      genes = genes.clean_annotations
+    end
+
+    organism ||= "Hsa"
+
+    @@gene_exons_tsv ||= {}
+    gene_exons = @@gene_exons_tsv[organism] ||= Organism.exons(organism).tsv(:persist => true, :key_field => "Ensembl Gene ID", :fields => ["Ensembl Exon ID"], :type => :flat, :merge => true, :unnamed => true)
 
     @@exon_range_tsv ||= {}
-    organism = genes.organism
-    @@exon_range_tsv[organism] ||= Organism.exons(organism).tsv :persist => true, :fields => ["Exon Chr Start", "Exon Chr End"], :type => :list, :cast => :to_i, :unnamed => true
-    total = 0
+    exon_ranges = @@exon_range_tsv[organism] ||= Organism.exons(organism).tsv(:persist => true, :fields => ["Exon Chr Start", "Exon Chr End"], :type => :list, :cast => :to_i, :unnamed => true)
 
-    chromosome_genes.each do |chr,gs|
-      next if chr.nil?
-      exons = genes.annotate(gs).transcripts.compact.flatten.exons.compact.flatten.uniq
+    exons = gene_exons.values_at(*genes).compact.flatten.uniq
 
-      exon_ranges = exons.collect{|exon|
-        Log.low "Exon #{ exon } does not have range" unless @@exon_range_tsv[organism].include? exon
-        next unless @@exon_range_tsv[organism].include? exon
-        pos = @@exon_range_tsv[organism][exon]
-        (pos.first..pos.last)
-      }.compact
-      total += Misc.total_length(exon_ranges)
-    end
+    exon_ranges = exons.collect{|exon|
+      Log.low "Exon #{ exon } does not have range" and next if not exon_ranges.include? exon
+      pos = exon_ranges[exon]
+      (pos.first..pos.last)
+    }.compact
     
-    total
+    Misc.total_length(exon_ranges)
   end
 
   self.annotation :format

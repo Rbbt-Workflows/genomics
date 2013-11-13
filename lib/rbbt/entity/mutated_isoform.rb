@@ -20,7 +20,9 @@ module MutatedIsoform
   DEFAULT_DAMAGE_PREDICTORS = [:sift, :mutation_assessor]
 
   property :protein => :array2single do
-    proteins = self.collect{|mutation| mutation.split(":").first if mutation[0..3] == "ENSP"}
+    proteins = self.collect{|mutation| 
+      mutation.split(":").first if mutation[0..3] == "ENSP"
+    }
     Protein.setup(proteins, "Ensembl Protein ID", organism)
   end
 
