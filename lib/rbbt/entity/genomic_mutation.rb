@@ -258,7 +258,11 @@ module GenomicMutation
     }
 
     is_exon_junction = self.in_exon_junction?.zip(self.type).collect{|in_ex,type| in_ex and type != "none"}
-    genes_with_altered_splicing = self.transcripts_with_affected_splicing.collect{|transcripts| transcripts.gene}
+
+    genes_with_altered_splicing = self.transcripts_with_affected_splicing.collect{|transcripts| 
+      (trascripts and transcripts.any?) ? nil : transcripts.gene
+    }
+
     from_protein.each_with_index do |list, i|
       if is_exon_junction[i] and genes_with_altered_splicing[i]
         list.concat genes_with_altered_splicing[i] 
