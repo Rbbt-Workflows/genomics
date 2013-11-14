@@ -338,7 +338,7 @@ module GenomicMutation
   end
 
   property :transcripts_with_affected_splicing  => :array2single do
-    return [] if self.empty?
+    return Transcript.setup([], "Ensembl Transcript ID", organism) if self.empty?
     exon2transcript_index = GenomicMutation.transcripts_for_exon_index(organism)
     transcript_exon_rank  = GenomicMutation.exon_rank_index(organism)
 
