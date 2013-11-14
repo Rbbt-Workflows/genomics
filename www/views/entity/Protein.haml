@@ -2,15 +2,20 @@
 - entity_card.name = entity
 - entity_card.long_name = "#{entity.gene.name} Protein Isoform"
 
-- entity_card.description do
+- entity_card.meta do
   %dl
     %dt Gene
     %dd= entity.gene.ensembl.link
+
+    %dt Transcript
+    %dd= entity.transcript
 
     %dt Uniprot
     %dd
       %a(href="http://www.uniprot.org/uniprot/#{entity.uniprot}")= entity.uniprot
 
+- entity_card.description do
+  %dl
     %dt Sequence
     %dd(style='font-family: Andale Mono, monospace')
       - dec = 0
