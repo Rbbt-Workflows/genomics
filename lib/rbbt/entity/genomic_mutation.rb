@@ -195,7 +195,7 @@ module GenomicMutation
   property :type => :array2single do
     reference = watson ? self.reference : self.gene_strand_reference
 
-    self.base.zip(reference).collect do |base,reference|
+    self.base.zip(reference, self).collect do |base,reference, mutation|
 
       type = case
              when (base.nil? or reference.nil? or base == "?" or reference == "?")
@@ -274,7 +274,9 @@ module GenomicMutation
   end
 
   property :relevant? => :array2single do
-    affected_genes.collect{|list| list and list.any?}
+    affected_genes.zip(in_exon_junction?).collect{|genes,in_exj| 
+      (genes and genes.any?) or in_exj
+    }
   end
 
   property :damaged_genes => :array2single do |*args|
