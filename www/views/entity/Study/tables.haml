@@ -1,0 +1,103 @@
+- study = entity
+
+%h2 Mutation kind
+- header "Sample", "Sample", :study => study
+= table do
+  - tsv = TSV.setup({}, :key_field => "Sample", :fields => ["SNV", "Insertion", "Deletion"], :type => :list, :cast => :to_i)
+  - study.samples.select_by(:has_genotype?).each do |sample|
+    - mutations = sample.mutations.select_by(:type){|type| type != "none" and type != "unknown"}
+    - snv = mutations.select_by(:base){|b| b =~ /^[ACTG]$/}
+    - ins = mutations.select_by(:base){|b| b =~ /^[^-]{2,}$/}
+    - del = mutations.select_by(:base){|b| b =~ /-/}
+    - tsv[sample] = [snv.length, ins.length, del.length]
+  - tsv
+
+
+%h2 Mutation type
+- header "Sample", "Sample", :study => study
+= table do
+  - tsv = TSV.setup({}, :key_field => "Sample", :fields => ["Transitions", "Transversions"], :type => :list, :cast => :to_i)
+  - study.samples.select_by(:has_genotype?).each do |sample|
+    - mutations = sample.mutations.select_by(:type){|type| type != "none" and type != "unknown"}
+    - transi = mutations.select_by(:type){|t| t == "transition"}
+    - transv = mutations.select_by(:type){|t| t == "transversion"}
+    - tsv[sample] = [transi.length, transv.length]
+  - tsv
+
+%h2 Mutation change
+- header "Sample", "Sample", :study => study
+= table do
+  - tsv = TSV.setup({}, :key_field => "Sample", :fields => [], :type => :list, :cast => :to_i)
+  - sample_changes = {}
+  - study.samples.select_by(:has_genotype?).each do |sample|
+    - changes = (sample_changes[sample] ||= {})
+    - mutations = sample.mutations.select_by(:type){|type| type == "transition" or type == "transversion"}
+    - changes["All"] = mutations
+    - mutations.each do |mutation|
+      - change = [mutation.reference, mutation.base] * ">"
+      - changes[change] ||= []
+      - changes[change] << mutation
+  - all_changes = sample_changes.values.collect{|changes| changes.keys}.flatten.uniq.sort
+  - all_changes = ["All"].concat(all_changes - ["All"])
+  - tsv.fields = all_changes
+  - sample_changes.each do |sample,changes|
+    - tsv[sample] = changes.values_at(*all_changes).collect{|list| list ? list.length : 0 }
+  - tsv
+
+%h2 Mutation consequence
+- header "Sample", "Sample", :study => study
+= table do
+  - tsv = TSV.setup({}, :key_field => "Sample", :fields => ["Not relevant", "Relevant"], :type => :list, :cast => :to_i, :namespace => study.organism)
+  - all_mutations = study.all_mutations
+  - mutation2mis = Misc.process_to_hash(all_mutations){|mutations| mutations.mutated_isoforms}
+  - all_mis = all_mutations.mutated_isoforms.compact.flatten.uniq
+  - mi2consequence = Misc.process_to_hash(all_mis){|mis| mis.consequence }
+  - mutation2ej = Misc.process_to_hash(all_mutations){|mutation| mutation.in_exon_junction? }
+
+  - study.samples.select_by(:has_genotype?).each do |sample|
+    - mutations = sample.mutations.select_by(:type){|type| type == "transition" or type == "transversion" or type == "indel"}
+    - non_synonymous = mutations.select do |mutation| 
+      - mis = mutation2mis[mutation]
+      - mutation.relevant?
+      -# mutation2ej[mutation] or (mis and mis.any? and mis.select{|mi| consequence = mi2consequence[mi]; consequence != "SYNONYMOUS" and consequence != "UTR" }.any?)
+      -# mutation2ej[mutation] or (mis and mis.any? and mis.select{|mi| consequence = mi2consequence[mi]; %w(NOSTOP MISS-SENSE INDEL FRAMESHIFT NONSENSE).include? consequence}.any?)
+
+    - synonymous = mutations - non_synonymous
+    - tsv[sample] = [synonymous.length, non_synonymous.length]
+  - tsv
+
+
+%h2 Mutation Damage
+- header "Sample", "Sample", :study => study
+= table do
+  - tsv = TSV.setup({}, :key_field => "Sample", :fields => ["Not Damaging", "Damaging"], :type => :list, :cast => :to_i, :namespace => study.organism)
+  - all_mutations = study.all_mutations
+  - mutation2mis = Misc.process_to_hash(all_mutations){|mutations| mutations.mutated_isoforms}
+  - all_mis = all_mutations.mutated_isoforms.compact.flatten.uniq
+  - mi2damaged = Misc.process_to_hash(all_mis) do |mis| 
+    - preds = MutEval.job(:dbNSFP, study, :mutations => mis, :organism => study.organism).run
+    - scores = preds.fields.select{|s| s =~ /converted/ }
+    - preds.slice(scores)
+    - preds.chunked_values_at(mis).collect{|scores| scores ? Misc.mean(scores.collect{|v| v.to_f}.reject{|s| s == -999.0}) > 0.7 : false }
+
+  - study.samples.select_by(:has_genotype?).each do |sample|
+    - mutations = sample.mutations.select_by(:type){|type| type == "transition" or type == "transversion"}
+    - damaged = mutations.select do |mutation| 
+      - mis = mutation2mis[mutation]
+      - mis and mis.any? and mis.select{|mi| mi2damaged[mi] }.any?
+
+    - not_damaged = mutations - damaged
+    - tsv[sample] = [not_damaged.length, damaged.length]
+  - tsv
+
+
+%h2 Affected Gene Overview
+= table do
+  - pairs = study.knowledge_base.get_index(:sample_genes, :source => "Ensembl Gene ID").keys
+  - AssociationItem.incidence(pairs, "Ensembl Gene ID")
+
+%h2 Damaged Gene Overview
+= table do
+  - pairs = study.knowledge_base.get_index(:sample_genes, :source => "Ensembl Gene ID").select("Damaged isoform" => "true").keys
+  - AssociationItem.incidence(pairs, "Ensembl Gene ID")
+

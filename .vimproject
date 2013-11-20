@@ -44,14 +44,14 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
      study_overview_old.haml
     }
     Study=Study{
-     gene_in_study.haml
      chromosome_range_in_study.haml
-     gene_list_in_study.haml
+     gene_in_study.haml
      gene_list_expression.haml
-     gene_list_expression.check
+     gene_list_in_study.haml
+     plots.haml
      sample_details.haml
      snp_in_study.haml
-     snp_in_study.check
+     tables.haml
     }
    }
    entity_list=entity_list{
