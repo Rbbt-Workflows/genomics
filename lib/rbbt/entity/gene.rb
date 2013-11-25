@@ -2,8 +2,7 @@ require 'rbbt/entity'
 require 'rbbt/workflow'
 require 'rbbt/sources/organism'
 require 'rbbt/sources/entrez'
-require 'rbbt/sources/matador'
-require 'rbbt/sources/cancer'
+#require 'rbbt/sources/cancer'
 require 'rbbt/entity/protein'
 require 'rbbt/entity/pmid'
 require 'rbbt/entity/transcript'
@@ -205,6 +204,7 @@ module Gene
   end
 
   property :matador_drugs => :array2single do
+    require 'rbbt/sources/matador'
     @@matador ||= Matador.protein_drug.tsv(:persist => false, :unnamed => true)
 
     ensg = self.to("Ensembl Gene ID")

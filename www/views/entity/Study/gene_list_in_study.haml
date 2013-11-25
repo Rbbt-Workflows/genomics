@@ -6,7 +6,7 @@
 
 = action_card_render action_card do
   - organism = entity.metadata[:organism]
-  - genes = Entity::List.load_list("Gene", list, user)
+  - genes = Entity::List.load_list("Gene", list, user).ensembl
   - names = Gene.setup(Translation.job(:translate, list, :genes => genes, :organism =>organism).run, "Associated Gene Name", genes.organism)
   - ensembl = Gene.setup(Translation.job(:translate, list, :genes => names, :organism =>organism).run, "Associated Gene Name", organism)
 

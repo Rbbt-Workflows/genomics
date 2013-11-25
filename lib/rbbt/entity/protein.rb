@@ -1,16 +1,14 @@
 require 'rbbt/entity'
 require 'rbbt/workflow'
 require 'rbbt/sources/organism'
-require 'rbbt/statistics/hypergeometric'
-require 'rbbt/network/paths'
+#require 'rbbt/statistics/hypergeometric'
+#require 'rbbt/network/paths'
 require 'rbbt/entity/gene'
 
 Workflow.require_workflow "Translation"
 
 module Protein
   extend Entity
-  include Entity::Adjacent
-  include Entity::Enriched
 
   self.annotation :format
   self.annotation :organism

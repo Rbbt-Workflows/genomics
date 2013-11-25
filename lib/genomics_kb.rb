@@ -49,3 +49,5 @@ Genomics.knowledge_base.register 'matador' do
   tsv
 end
 
+Genomics.knowledge_base.register 'gene_ages', Rbbt.share.gene_ages.find(:lib)
+
