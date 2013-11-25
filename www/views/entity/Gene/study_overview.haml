@@ -24,6 +24,7 @@
       - next if mutation_count > 100_000
       - begin
         - study.knowledge_base.get_index(:sample_genes)
+        - NKIWorkflow.job(:significantly_mutated, study, :study => study, :threshold => 0.1).run
       - rescue
         - Log.debug("Error preprocessing #{ study }: #{$!.message}")
 

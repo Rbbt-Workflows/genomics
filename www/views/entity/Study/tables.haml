@@ -1,5 +1,6 @@
 - study = entity
 
+- log :mutation_kind
 %h2 Mutation kind
 - header "Sample", "Sample", :study => study
 = table do
@@ -13,6 +14,7 @@
   - tsv
 
 
+- log :mutation_type
 %h2 Mutation type
 - header "Sample", "Sample", :study => study
 = table do
@@ -24,6 +26,7 @@
     - tsv[sample] = [transi.length, transv.length]
   - tsv
 
+- log :mutation_change
 %h2 Mutation change
 - header "Sample", "Sample", :study => study
 = table do
@@ -44,6 +47,7 @@
     - tsv[sample] = changes.values_at(*all_changes).collect{|list| list ? list.length : 0 }
   - tsv
 
+- log :mutation_consequence
 %h2 Mutation consequence
 - header "Sample", "Sample", :study => study
 = table do
@@ -52,13 +56,13 @@
   - mutation2mis = Misc.process_to_hash(all_mutations){|mutations| mutations.mutated_isoforms}
   - all_mis = all_mutations.mutated_isoforms.compact.flatten.uniq
   - mi2consequence = Misc.process_to_hash(all_mis){|mis| mis.consequence }
-  - mutation2ej = Misc.process_to_hash(all_mutations){|mutation| mutation.in_exon_junction? }
+  - mutation2relevant = Misc.process_to_hash(all_mutations){|mutations| mutations.relevant? }
+  - mutation2ej = Misc.process_to_hash(all_mutations){|mutations| mutations.in_exon_junction? }
 
   - study.samples.select_by(:has_genotype?).each do |sample|
     - mutations = sample.mutations.select_by(:type){|type| type == "transition" or type == "transversion" or type == "indel"}
     - non_synonymous = mutations.select do |mutation| 
-      - mis = mutation2mis[mutation]
-      - mutation.relevant?
+      - mutation2relevant[mutation]
       -# mutation2ej[mutation] or (mis and mis.any? and mis.select{|mi| consequence = mi2consequence[mi]; consequence != "SYNONYMOUS" and consequence != "UTR" }.any?)
       -# mutation2ej[mutation] or (mis and mis.any? and mis.select{|mi| consequence = mi2consequence[mi]; %w(NOSTOP MISS-SENSE INDEL FRAMESHIFT NONSENSE).include? consequence}.any?)
 
@@ -67,9 +71,10 @@
   - tsv
 
 
+- log :mutation_damage
 %h2 Mutation Damage
 - header "Sample", "Sample", :study => study
-= table do
+-#= table do
   - tsv = TSV.setup({}, :key_field => "Sample", :fields => ["Not Damaging", "Damaging"], :type => :list, :cast => :to_i, :namespace => study.organism)
   - all_mutations = study.all_mutations
   - mutation2mis = Misc.process_to_hash(all_mutations){|mutations| mutations.mutated_isoforms}
@@ -91,11 +96,13 @@
   - tsv
 
 
+- log :affected_genes
 %h2 Affected Gene Overview
 = table do
   - pairs = study.knowledge_base.get_index(:sample_genes, :source => "Ensembl Gene ID").keys
   - AssociationItem.incidence(pairs, "Ensembl Gene ID")
 
+- log :damaged_genes
 %h2 Damaged Gene Overview
 = table do
   - pairs = study.knowledge_base.get_index(:sample_genes, :source => "Ensembl Gene ID").select("Damaged isoform" => "true").keys
