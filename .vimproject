@@ -41,7 +41,6 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
      gene_in_study.haml
      known_mutations.haml
      study_overview.haml
-     study_overview_old.haml
     }
     Study=Study{
      chromosome_range_in_study.haml
