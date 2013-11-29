@@ -74,26 +74,26 @@
 - log :mutation_damage, "Mutation damage"
 %h2 Mutation Damage
 - header "Sample", "Sample", :study => study
--#= table do
-  - tsv = TSV.setup({}, :key_field => "Sample", :fields => ["Not Damaging", "Damaging"], :type => :list, :cast => :to_i, :namespace => study.organism)
-  - all_mutations = study.all_mutations
-  - mutation2mis = Misc.process_to_hash(all_mutations){|mutations| mutations.mutated_isoforms}
-  - all_mis = all_mutations.mutated_isoforms.compact.flatten.uniq
-  - mi2damaged = Misc.process_to_hash(all_mis) do |mis| 
-    - preds = MutEval.job(:dbNSFP, study, :mutations => mis, :organism => study.organism).run
-    - scores = preds.fields.select{|s| s =~ /converted/ }
-    - preds.slice(scores)
-    - preds.chunked_values_at(mis).collect{|scores| scores ? Misc.mean(scores.collect{|v| v.to_f}.reject{|s| s == -999.0}) > 0.7 : false }
+= table do
+- tsv = TSV.setup({}, :key_field => "Sample", :fields => ["Not Damaging", "Damaging"], :type => :list, :cast => :to_i, :namespace => study.organism)
+- all_mutations = study.all_mutations
+- mutation2mis = Misc.process_to_hash(all_mutations){|mutations| mutations.mutated_isoforms}
+- all_mis = all_mutations.mutated_isoforms.compact.flatten.uniq
+- mi2damaged = Misc.process_to_hash(all_mis) do |mis| 
+  - preds = MutEval.job(:dbNSFP, study, :mutations => mis, :organism => study.organism).run
+  - scores = preds.fields.select{|s| s =~ /converted/ }
+  - preds.slice(scores)
+  - preds.chunked_values_at(mis).collect{|scores| scores ? Misc.mean(scores.collect{|v| v.to_f}.reject{|s| s == -999.0}) > 0.7 : false }
 
-  - study.samples.select_by(:has_genotype?).each do |sample|
-    - mutations = sample.mutations.select_by(:type){|type| type == "transition" or type == "transversion"}
-    - damaged = mutations.select do |mutation| 
-      - mis = mutation2mis[mutation]
-      - mis and mis.any? and mis.select{|mi| mi2damaged[mi] }.any?
+- study.samples.select_by(:has_genotype?).each do |sample|
+  - mutations = sample.mutations.select_by(:type){|type| type == "transition" or type == "transversion"}
+  - damaged = mutations.select do |mutation| 
+    - mis = mutation2mis[mutation]
+    - mis and mis.any? and mis.select{|mi| mi2damaged[mi] }.any?
 
-    - not_damaged = mutations - damaged
-    - tsv[sample] = [not_damaged.length, damaged.length]
-  - tsv
+  - not_damaged = mutations - damaged
+  - tsv[sample] = [not_damaged.length, damaged.length]
+- tsv
 
 
 - log :affected_genes, "Affected genes"
