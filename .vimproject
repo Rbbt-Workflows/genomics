@@ -55,7 +55,6 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
    }
    entity_list=entity_list{
     Default.haml
-    Gene.haml
     GenomicMutation.haml
     Sample.haml
     Default=Default{

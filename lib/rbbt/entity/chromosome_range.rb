@@ -21,7 +21,7 @@ module ChromosomeRange
     when text =~ /KB?$/i
       base * 1000
     when text =~ /MB?$/i
-      base * 1000_000
+      base * 1_000_000
     when text =~ /^\d+(\.\d+)?(e\+\d+)?$/
       base
     else 
@@ -30,7 +30,7 @@ module ChromosomeRange
   end
 
   property :unit => :array2single do
-    res = self.collect{|range|
+    res = Annotated.purge(self).collect{|range|
       chr, start, eend, *rest = range.split(":")
       ([chr, ChromosomeRange.text_to_unit(start), ChromosomeRange.text_to_unit(eend)].concat rest) * ":"
     }
@@ -40,7 +40,8 @@ module ChromosomeRange
   end
 
   property :genes => :array2single do
-    Gene.setup(Sequence.job(:genes_at_genomic_ranges, "ChromosomeRange", :organism => organism, :ranges => self.unit).run.tap{|t| t.namespace = organism}.chunked_values_at(self.unit), "Ensembl Gene ID", organism)
+    unit = self.unit
+    Gene.setup(Sequence.job(:genes_at_genomic_ranges, "ChromosomeRange", :organism => organism, :ranges => unit).run.tap{|t| t.namespace = organism}.chunked_values_at(unit), "Ensembl Gene ID", organism)
   end
 
   property :ensembl_browser => :single2array do
