@@ -1,0 +1,63 @@
+= action_card_render ActionCard.new do
+  - genes = entity.recurrent_genes
+  - organism = genes.organism
+  - tsv = TSV.setup(genes, :key_field => "Ensembl Gene ID", :fields => [], :type => :list)
+  - g2h = {}
+  - g2r = {}
+  - g2c = Misc.counts(entity.all_mutations.affected_genes.compact.flatten)
+
+  - protein_sequence = Organism.protein_sequence(organism).tsv :persist => true, :type => :single
+  - genes.each do |gene|
+    - matches = COSMIC.knowledge_base.children('gene_principal_isoform_mutations', gene)
+    - positions = []
+    - protein_size = nil
+    - MutatedIsoform.setup(matches.target, organism).each do |mi|
+      - protein, sep, change = mi.partition ":"
+      - next unless change =~ /(\w)(\d+)(\w)/ and $1 != $3
+      - position = $2.to_i
+      - next if position.nil? 
+      - protein_size ||= protein_sequence[protein].length if protein_sequence[protein]
+      - positions << position
+    - next if positions.empty? or protein_size.nil?
+    - positions.sort!
+
+    -# count coincidences
+      - distances = positions[1..-1].zip(positions).collect{|p1,p2| p1 - p2}
+      - hotspot = distances.inject(0){|acc,e|  acc += 1 if e == 0; acc }.to_f / distances.length
+
+    - unif = (0..1000).to_a.collect{ rand }
+    - scaled_positions = positions.collect{|p| p.to_f / protein_size }
+    - hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
+    - hotspot_stat = 0.0000001 if hotspot_stat < 0.0000001
+    - g2h[gene] = hotspot_stat
+    - g2r[gene] = positions.length.to_f / protein_size
+      
+
+  - tsv.add_field "COSMIC uniform log-odds" do |gene, values|
+    - g2h[gene] ? Math.log((1-g2h[gene])/g2h[gene]) : nil
+
+  - tsv.add_field "COSMIC rate" do |gene, values|
+    - g2r[gene] ? Math.log(g2r[gene]) : nil
+
+  - tsv.add_field "Recurrence" do |gene, values|
+    - g2c[gene]
+
+  - tsv = tsv.select("COSMIC uniform log-odds"){|hs| hs != nil}
+
+  :markdown
+
+    The following plot shows genes mutated in two or more samples in the study, considering only mutations with
+    a relevant consequence. The size of the circle represents the number of samples with relevant mutations, and 
+    the X and Y axes provide background information from COSMIC. All the mutations for the gene are taken from COSMIC
+    and their consequences are predicted onto the main protein isoform (determined using Appris). The X axis is the logarithm
+    of the proportion of mutations by protein amino-acid. The Y axis is the log-odds of the p-value derived from comparing
+    the distribution of the positions of the mutated aminoacids with a random distribution using a Kolmogorov-Smirnov test.
+    This procedures makes the assumption that all amino-acids are equally likely to be mutated.
+
+
+  = tool :figure, :plot => :scatter, :data => tsv, :logx => true, 
+    :x => "COSMIC rate", :y => "COSMIC uniform log-odds", :size => "Recurrence", 
+    :width => "100%", :height => "400px",
+    :title => "Gene overview plot", 
+    :caption => "(Y) Non-uniform log-odds ~ (X) log COSMIC mutation frequency; (Size) Mutation count in study"
+

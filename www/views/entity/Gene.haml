@@ -1,6 +1,7 @@
 - entity_card = EntityCard.new(entity)
 - start = Time.now
 
+- class << Misc; def self.fingerprint(obj); puts caller; ddd obj; super(obj); end; end
 - entity_card.description do
   %p= entity.description
 

@@ -4,7 +4,6 @@
   = action_parameters do
     - input :gene, :string, "Ensembl Gene ID"
 
-- action_card.require :gene
 = action_card_render action_card do
   - organism = entity.organism
   - genes = Gene.setup(Translation.job(:translate, gene, :genes => [gene], :organism =>organism).run, "Ensembl Gene ID", organism)
@@ -43,10 +42,10 @@
       - pvalue = overview[3].first
       %dd= Float === pvalue ? "%.5g" % pvalue : pvalue
 
-  %h4 Gene expression 
-  - if not entity.matrices.include? "gene_expression"
+  -#%h4 Gene expression 
+  -# if not entity.matrices.include? "gene_expression"
     No gene expression in this cohort
-  - else
+  -# else
     - matrix = entity.matrix(:gene_expression)
     - values = (matrix.matrix_file.tsv(:grep => gene)[gene] || []).flatten.compact.collect{|v| v.to_f}
     - if values.any?
