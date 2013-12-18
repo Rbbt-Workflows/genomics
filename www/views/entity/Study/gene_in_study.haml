@@ -3,118 +3,79 @@
 - action_card.require :gene do
   = action_parameters do
     - input :gene, :string, "Ensembl Gene ID"
-
+    
 = action_card_render action_card do
-  - organism = entity.organism
-  - genes = Gene.setup(Translation.job(:translate, gene, :genes => [gene], :organism =>organism).run, "Ensembl Gene ID", organism)
-  - gene = genes.first
+  - study = entity
+  - organism = study.organism
 
-  %p= gene.link
+  - gene = Gene.setup(Translation.job(:translate, gene, :genes => [gene], :organism =>organism).run.first, "Ensembl Gene ID", organism)
+  - gene_name = gene.name || gene
+  - list = [gene]
 
-  %h4 Genotype analysis
-  - overview = entity.job(:genotype_overview).run(true).path.tsv(:grep => [gene])[gene]
-  - if overview.nil?
-    No mutations in this cohort
-  - else
-    %dl
-      %dt Mutations
-      %dd= entity.mutations_over_gene(gene).list_link :length, "Mutations over #{ gene.name } in #{ entity }"
+  -#{{{ GENOTYPE
+  - if study.has_genotypes? and study.all_mutations.length < 100_000
+    %hr
+    %h4 Genotype
+
+    -# Genotype mutations
+    - log :mutations
+    - mutation_matches = study.knowledge_base.subset(:mutation_genes, "Genomic Mutation" => :all, "Gene" => list)
+    - relevant_mutation_matches = study.knowledge_base.subset(:mutation_affected_genes, "Genomic Mutation" => :all, "Gene" => list)
+    - damaging_mutation_matches = study.knowledge_base.subset(:mutation_damaged_genes, "Genomic Mutation" => :all, "Gene" => list)
+
+    %dl.figure.float
+      %span.title
+        Mutation breakdown
+
+      %dt Total number of (unique) mutations
+      %dd
+        - if mutation_matches.empty?
+          None
+        - else
+          = mutation_matches.source_entity.list_link(:length, "Over #{gene_name} in #{study}")
+
+      %dt Total number of relevant (unique) mutations
+      %dd
+        - if relevant_mutation_matches.empty?
+          None
+        - else
+          = relevant_mutation_matches.source_entity.list_link(:length, "Relevant over #{gene_name} in #{study}")
+
+    -# Genotype samples
+    - log :sample_mutations
+    - gene_matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => list)
+    - relevant_gene_matches = gene_matches.select{|m| m.value["Affected Isoform"] == 'true' }
+    - damaged_gene_matches = gene_matches.select{|m| m.value["Damaged Isoform"] == 'true' }
+
+    %dl.figure.float
+      %span.title
+        Sample breakdown
 
       %dt Samples with gene mutated
-      - if overview[0].any?
-        %dd= Sample.setup(overview[0], entity).list_link :length, "Samples with mutations over #{gene.name} in #{ entity }"
-      - else
-        %dd None
+      %dd
+        - if gene_matches.empty?
+          None
+        - else
+          = gene_matches.source_entity.uniq.list_link(:length, "With #{gene_name} mutated in #{study}")
 
       %dt Samples with gene affected
-      - if overview[1].any?
-        %dd= Sample.setup(overview[1], entity).list_link :length, "Samples with relevant mutations over #{gene.name} in #{ entity }"
-      - else
-        %dd None
+      %dd
+        - if relevant_gene_matches.empty?
+          None
+        - else
+          = relevant_gene_matches.source_entity.uniq.list_link(:length, "With #{gene_name} affected in #{study}")
 
       %dt Samples with gene damaged
-      - if overview[2].any?
-        %dd= Sample.setup(overview[2], entity).list_link :length, "Samples with damaging mutations over #{gene.name} in #{ entity }"
-      - else
-        %dd None
+      %dd
+        - if damaged_gene_matches.empty?
+          None
+        - else
+          = damaged_gene_matches.source_entity.uniq.list_link(:length, "With #{gene_name} damaged in #{study}")
 
-      %dt Significance
-      - pvalue = overview[3].first
-      %dd= Float === pvalue ? "%.5g" % pvalue : pvalue
+  - data = {"Damaged" => damaged_gene_matches.source.uniq.length, 
+    "Affected" => relevant_gene_matches.source.uniq.length - damaged_gene_matches.source.uniq.length, 
+    "Just overlapping" => gene_matches.source.uniq.length - relevant_gene_matches.source.uniq.length,
+    "Not mutated" => study.samples.length - gene_matches.source.uniq.length}
 
-  -#%h4 Gene expression 
-  -# if not entity.matrices.include? "gene_expression"
-    No gene expression in this cohort
-  -# else
-    - matrix = entity.matrix(:gene_expression)
-    - values = (matrix.matrix_file.tsv(:grep => gene)[gene] || []).flatten.compact.collect{|v| v.to_f}
-    - if values.any?
-      - title = "Distribution of #{ gene.name || gene } expression values in #{entity}"
-      = resource title + '.png', nil, :image do |filename|
-        :ruby
-          R.run <<-EOF
-            values = #{R.ruby2R values}
-            rbbt.png_plot(file='#{filename}', 300, 300, 'plot(density(values), main="#{gene.name} in #{ entity }"); rug(values); abline(v=mean(values)); abline(v=(mean(values) + sd(values))); abline(v=(mean(values) + 2 * sd(values)))')
-          EOF
-    
--#
-  %h4 CNV analysis
-  - overview = entity.job(:cnv_overview).run(true).path.tsv(:grep => [gene])[gene]
-  - if overview.nil?
-    No CNVs in this cohort
-  - else
-    %dl
-
-      %dt Samples with gene lost
-      - if overview[0].any?
-        %dd= Sample.setup(overview[0], entity).list_link :length, "Samples with #{gene.name} lost in #{ entity }"
-      - else
-        %dd None
-
-      %dt Samples with gene gained
-      - if overview[1].any?
-        %dd= Sample.setup(overview[1], entity).list_link :length, "Samples with #{gene.name} gained in #{ entity }"
-      - else
-        %dd None
-
- 
--#- action_card = ActionCard.new 
--#
--#- action_card.require :gene do
--#  = action_parameters do
--#    - input :gene, :string, "Ensembl Gene ID"
--#
--#- action_card.require :gene
--#= action_card_render action_card do
--#  .mutations
--#    - organism = entity.metadata[:organism]
--#    - genes = Gene.setup(Translation.job(:translate, gene, :genes => [gene], :organism =>organism).run, "Ensembl Gene ID", organism)
--#    - gene = genes.first
--#
--#    - mutations = entity.mutations_over_gene(gene).select_by(:relevant?)
--#
--#    - if mutations and mutations.any?
--#      %h4 Relevant mutations
--#      - GenomicMutation.setup(mutations, "Relevant mutations over #{gene.name} in #{ entity }", organism, true)
--#      = mutations.list_link :length, "Mutations over #{ gene.name || gene } in #{ entity }"
--#    - else
--#      %p No mutations on this gene
--#
--#    - samples = entity.samples_with_gene_affected[gene]
--#    - if samples and samples.any?
--#      %h4 Samples with relevant mutations
--#      - samples = Sample.setup(samples.uniq, entity)
--#      = samples.list_link :length, "Samples with relevant mutations over #{ gene.name || gene } in #{ entity }"
--#    - else
--#      %p No samples affected by relevant mutations in this gene
--#
--#  -#  
--#    - samples = entity.samples_with_gene_damaged[gene]
--#    - if samples and samples.any?
--#      %h4 Samples with damaging mutations
--#      - samples = Sample.setup(samples.uniq, entity)
--#      = samples.list_link :length, "Samples with damaging mutations over #{ gene.name || gene } in #{ entity }"
--#    - else
--#      %p No samples affected by mutations in this gene
-    
+  = tool :figure, :plot => :pie, :float => true, :data => data, :title => "Samples by genotype"
 

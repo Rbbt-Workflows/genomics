@@ -2,40 +2,154 @@
 
 - action_card.require :list do
   = action_parameters do
-    - input :list, :select, "Ensembl Gene ID list", nil, :html_options => {:class => 'favourite_lists', :type => 'Gene'}
+    - input :list, :select, "Gene list", nil, :html_options => {:class => 'favourite_lists', :type => "Gene"}
 
+- 
 = action_card_render action_card do
+  - list_id = list
 
   - study = entity
-  - organism = study.metadata[:organism]
-  - genes = Entity::List.load_list("Gene", list, user).ensembl
-  - names = Gene.setup(Translation.job(:translate, list, :genes => genes, :organism =>organism).run, "Associated Gene Name", genes.organism)
-  - ensembl = Gene.setup(Translation.job(:translate, list, :genes => names, :organism =>organism).run, "Associated Gene Name", organism)
+  - organism = study.organism
 
-  - mutations = study.known_mutations.subset(:mutation_genes, "Gene" => ensembl)
-  - GenomicMutation.setup(mutations, organism, true)
-  - ddd mutations
-
-
-
--# old
-  - mutations = study.mutations_over_gene_list(ensembl)
-  - study
-
-  - if mutations and mutations.any?
-    %h3 Mutations
-    - GenomicMutation.setup(mutations, "Mutations over #{list} in #{ study }", organism, true)
-    = mutations.list_link :length, "Mutations over #{ list } in #{ study }"
-  - else
-    %p No mutations over genes in this list
-
-  - samples = ensembl.collect{|gene| study.samples_with_gene_affected[gene]}.compact.flatten.uniq
-  - if samples and samples.any?
-    %h3 Samples
-    - samples = Sample.setup(samples.uniq, study)
-    = samples.list_link :length, "Samples with mutations over #{ list } in #{ study }"
-  - else
-    %p No samples affected by mutations in genes of this list
+  - list = Entity::List.load_list("Gene", list_id, user)
+  - genes = Gene.setup(Translation.job(:translate, list_id, :genes => list, :organism =>organism).run.compact, "Ensembl Gene ID", organism)
   
+  -#{{{ GENOTYPE
+  - if study.has_genotypes? and study.all_mutations.length < 100_000
+    %hr
+    %h4 Genotype
 
+    -# Genotype mutations
+    - log :mutations
+    - mutation_matches = study.knowledge_base.subset(:mutation_genes, "Genomic Mutation" => :all, "Gene" => list)
+    - relevant_mutation_matches = study.knowledge_base.subset(:mutation_affected_genes, "Genomic Mutation" => :all, "Gene" => list)
+    - damaging_mutation_matches = study.knowledge_base.subset(:mutation_damaged_genes, "Genomic Mutation" => :all, "Gene" => list)
+
+    %dl.figure.float
+      %span.title
+        Mutation breakdown
+
+      %dt Total number of (unique) mutations
+      %dd
+        - if mutation_matches.empty?
+          None
+        - else
+          = mutation_matches.source_entity.list_link(:length, "Over #{list_id} in #{study}")
+
+      %dt Total number of relevant (unique) mutations
+      %dd
+        - if relevant_mutation_matches.empty?
+          None
+        - else
+          = relevant_mutation_matches.source_entity.list_link(:length, "Relevant over #{list_id} in #{study}")
+
+      %dt Overlapping genes
+      %dd
+        - if mutation_matches.empty?
+          None
+        - else
+          = mutation_matches.target_entity.uniq.list_link(:length, "#{list_id} with mutations in #{study}")
+      
+      %dt Affected genes
+      %dd
+        - if relevant_mutation_matches.empty?
+          None
+        - else
+          = relevant_mutation_matches.target_entity.uniq.list_link(:length, "#{list_id} with mutations in #{study}")
+      
+      %dt Damaged genes
+      %dd
+        - if damaging_mutation_matches.empty?
+          None
+        - else
+          = damaging_mutation_matches.target_entity.uniq.list_link(:length, "#{list_id} with mutations in #{study}")
+
+    - data = {"Affected" => relevant_mutation_matches.target.uniq.length, 
+      "Just overlapping" => mutation_matches.target.uniq.length - relevant_mutation_matches.target.uniq.length,
+      "Not mutated" => list.length - mutation_matches.target.uniq.length}
+
+    = tool :figure, :plot => :pie, :float => true, :data => data, :title => "Genes by genotype"
+
+    -# Genotype samples
+    - log :sample_mutations
+    - gene_matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => list)
+    - relevant_gene_matches = gene_matches.select{|m| m.value["Affected Isoform"] == 'true' }
+    - damaged_gene_matches = gene_matches.select{|m| m.value["Damaged Isoform"] == 'true' }
+
+    %dl.figure.float
+      %span.title
+        Sample breakdown
+
+      %dt Samples with gene in list mutated
+      %dd
+        - if gene_matches.empty?
+          None
+        - else
+          = gene_matches.source_entity.uniq.list_link(:length, "With #{list_id} mutated in #{study}")
+
+      %dt Samples with gene in list affected
+      %dd
+        - if relevant_gene_matches.empty?
+          None
+        - else
+          = relevant_gene_matches.source_entity.uniq.list_link(:length, "With #{list_id} affected in #{study}")
+
+      %dt Samples with gene in list damaged
+      %dd
+        - if damaged_gene_matches.empty?
+          None
+        - else
+          = damaged_gene_matches.source_entity.uniq.list_link(:length, "With #{list_id} damaged in #{study}")
+
+  - data = {"Damaged" => damaged_gene_matches.source.uniq.length, 
+    "Affected" => relevant_gene_matches.source.uniq.length - damaged_gene_matches.source.uniq.length, 
+    "Just overlapping" => gene_matches.source.uniq.length - relevant_gene_matches.source.uniq.length,
+    "Not mutated" => study.samples.length - gene_matches.source.uniq.length}
+
+  = tool :figure, :plot => :pie, :float => true, :data => data, :title => "Samples by genotype"
+
+  - log :mutation_table
+
+  - header "Mutated samples", "Link"
+  - header "Affected samples", "Link"
+  - header "Damaged samples", "Link"
+  - header "Binomial significance", "NumericValue"
+  = table :page => "1~Binomial significance", :table_id => "Gene overview" do
+    - significance = study.job(:binomial_significance).run
+    - mutated_genes = significance.keys
+    - gene2name = Misc.process_to_hash(list.subset(mutated_genes)){|l| l.name }
+
+    - tsv = TSV.setup(list.subset(mutated_genes), :key_field => "Ensembl Gene ID", :fields => [], :type => :list)
+
+    - tsv.add_field "Mutated samples" do |gene, values|
+      - matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => [gene])
+      - next if matches.empty?
+      - matches.source_entity.tap{|e| e.study = study}.list_link :length, "With #{gene2name[gene] || gene} mutated in #{ study }"
+
+    - tsv.add_field "Affected samples" do |gene, values|
+      - matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => [gene]).select do |m| 
+        - m.value["Affected isoform"] == "true" 
+      - next if matches.empty?
+      - matches.source_entity.tap{|e| e.study = study}.list_link :length, "With #{gene2name[gene] || gene} mutated in #{ study }"
+      
+    - tsv.add_field "Damaged samples" do |gene, values|
+      - matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => [gene]).select do |m| 
+        - m.value["Damaged isoform"] == "true" 
+      - next if matches.empty?
+      - matches.source_entity.tap{|e| e.study = study}.list_link :length, "With #{gene2name[gene] || gene} mutated in #{ study }"
+
+    - tsv.add_field "Binomial significance" do |gene, values|
+      - significance[gene]["p.value"] 
+
+  - matches = study.knowledge_base.subset('sample_genes', "Gene" => list, "Sample" => :all)
+
+  - log :mutation_incidence
+  - if matches.any?
+    - matrix = AssociationItem.incidence matches
+    - matrix.fields = list.annotate(matrix.fields).name
+
+    .figure.float
+      %span.title
+        Mutation incidence plot
+      = partial_render('ggplot2/incidence', :data => matrix, :incidence => "Mutated")
 
