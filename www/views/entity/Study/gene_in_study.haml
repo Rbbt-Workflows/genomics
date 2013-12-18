@@ -2,7 +2,8 @@
 
 - action_card.require :gene do
   = action_parameters do
-    - input :gene, :string, "Ensembl Gene ID"
+    - self.description = "Genes can be specified in most identifier formats: ensembl, entrez, uniprot. Case is important; human gene symbols are uppercase (e.g. KRAS)."
+    - input :gene, :string, "Gene ID"
     
 = action_card_render action_card do
   - study = entity

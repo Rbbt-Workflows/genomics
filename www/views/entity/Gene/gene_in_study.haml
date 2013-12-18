@@ -5,6 +5,11 @@
  
 - action_card.require :study
 
+- action_card.description do
+
+  :markdown
+    Select a study to see how this gene is affected in its samples
+
 = action_card_render action_card do
   - Study.setup(study)
   = fragment study.action_link("gene_in_study", "#{ entity } in #{ study }", :gene => entity.ensembl, :_ => rand)

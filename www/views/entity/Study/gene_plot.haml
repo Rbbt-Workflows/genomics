@@ -1,4 +1,17 @@
-= action_card_render ActionCard.new do
+- action_card = ActionCard.new
+
+- action_card.description do
+  :markdown
+
+    The following plot shows genes mutated in two or more samples in the study, considering only mutations with
+    a relevant consequence. The size of the circle represents the number of samples with relevant mutations, and 
+    the X and Y axes provide background information from COSMIC. All the mutations for the gene are taken from COSMIC
+    and their consequences are predicted onto the main protein isoform (determined using Appris). The X axis is the logarithm
+    of the proportion of mutations by protein amino-acid. The Y axis is the log-odds of the p-value derived from comparing
+    the distribution of the positions of the mutated aminoacids with a random distribution using a Kolmogorov-Smirnov test.
+    This procedures makes the assumption that all amino-acids are equally likely to be mutated.
+
+= action_card_render action_card do
   - genes = entity.recurrent_genes
   - organism = genes.organism
   - tsv = TSV.setup(genes, :key_field => "Ensembl Gene ID", :fields => [], :type => :list)
@@ -43,17 +56,6 @@
     - g2c[gene]
 
   - tsv = tsv.select("COSMIC uniform log-odds"){|hs| hs != nil}
-
-  :markdown
-
-    The following plot shows genes mutated in two or more samples in the study, considering only mutations with
-    a relevant consequence. The size of the circle represents the number of samples with relevant mutations, and 
-    the X and Y axes provide background information from COSMIC. All the mutations for the gene are taken from COSMIC
-    and their consequences are predicted onto the main protein isoform (determined using Appris). The X axis is the logarithm
-    of the proportion of mutations by protein amino-acid. The Y axis is the log-odds of the p-value derived from comparing
-    the distribution of the positions of the mutated aminoacids with a random distribution using a Kolmogorov-Smirnov test.
-    This procedures makes the assumption that all amino-acids are equally likely to be mutated.
-
 
   = tool :figure, :plot => :scatter, :data => tsv, :logx => true, 
     :x => "COSMIC rate", :y => "COSMIC uniform log-odds", :size => "Recurrence", 
