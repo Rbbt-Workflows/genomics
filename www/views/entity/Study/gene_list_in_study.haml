@@ -143,7 +143,7 @@
       - matches.source_entity.tap{|e| e.study = study}.list_link :length, "With #{gene2name[gene] || gene} mutated in #{ study }"
 
     - tsv.add_field "Binomial significance" do |gene, values|
-      - significance[gene]["p.value"] 
+      - significance[gene].last
 
   - matches = study.knowledge_base.subset('sample_genes', "Gene" => list, "Sample" => :all)
 
