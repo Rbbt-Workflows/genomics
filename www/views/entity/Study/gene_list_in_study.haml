@@ -112,6 +112,8 @@
 
   = tool :figure, :plot => :pie, :float => true, :data => data, :title => "Samples by genotype"
 
+  %hr
+
   - log :mutation_table
 
   - header "Mutated samples", "Link"
@@ -123,7 +125,7 @@
     - mutated_genes = significance.keys
     - gene2name = Misc.process_to_hash(list.subset(mutated_genes)){|l| l.name }
 
-    - tsv = TSV.setup(list.subset(mutated_genes), :key_field => "Ensembl Gene ID", :fields => [], :type => :list)
+    - tsv = TSV.setup(list.subset(mutated_genes), :key_field => "Ensembl Gene ID", :fields => [], :type => :list, :namespace => genes.organism)
 
     - tsv.add_field "Mutated samples" do |gene, values|
       - matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => [gene])
