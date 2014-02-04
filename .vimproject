@@ -7,6 +7,9 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     cnv.rb
     gene.rb
     genomic_mutation.rb
+    genomic_mutation=genomic_mutation{
+     vcf.rb
+    }
     genotype.rb
     interactor.rb
     methylation.rb

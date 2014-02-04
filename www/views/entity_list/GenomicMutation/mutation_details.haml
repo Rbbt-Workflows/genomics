@@ -22,7 +22,7 @@
     - mis = mutation.mutated_isoforms
     - values = []
     - values << (watson ? mutation.reference : mutation.gene_strand_reference)
-    - values << "" #mutation.dbSNP
+    - values << mutation.genomes_1000
     - values << mutation.genes
     - values << mutation.worst_consequence
     - values << mutation.type
