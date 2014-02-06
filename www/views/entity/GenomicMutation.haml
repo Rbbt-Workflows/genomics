@@ -66,9 +66,13 @@
     %dt Type
     %dd= entity.type
 
-
     %dt Overlapping genes
     %dd= (entity.genes.nil? or entity.genes.empty?) ?  "" : entity.genes.link * ", "
+
+    %dt Relevant
+    %dd
+      = fragment do
+        = entity.relevant?
 
     %dt Damaging
     %dd

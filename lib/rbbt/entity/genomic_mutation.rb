@@ -352,8 +352,8 @@ module GenomicMutation
     transcript_exon_rank  = GenomicMutation.exon_rank_index(organism)
 
     _exon_junctions = self.exon_junctions
-    transcripts = _exon_junctions.collect{|junctions|
-      if junctions.nil? or junctions.empty?
+    transcripts = _exon_junctions.zip(self.type).collect{|junctions, type|
+      if %w(unknown none).include?(type) or junctions.nil? or junctions.empty? 
         []
       else
         junctions.collect{|junction|

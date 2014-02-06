@@ -72,8 +72,8 @@ class TestGenomicMutation < Test::Unit::TestCase
   end
 
   def test_transcripts_with_affected_splicing
-    assert(SPLICING.transcripts_with_affected_splicing.any?)
-    assert(SPLICING2.transcripts_with_affected_splicing.empty?)
+    assert(SPLICING.transcripts_with_affected_splicing && SPLICING.transcripts_with_affected_splicing.any?)
+    assert(SPLICING2.transcripts_with_affected_splicing.nil? || SPLICING2.transcripts_with_affected_splicing.empty?)
   end
 
   def test_genes_persist
