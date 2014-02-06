@@ -246,26 +246,30 @@ module GenomicMutation
   property :affected_genes => :array2single do
     _mutated_isoforms = mutated_isoforms
 
-    non_synonymous_mutated_isoforms = MutatedIsoform.setup(_mutated_isoforms.compact.flatten.uniq, organism).reject{|mi| mi.consequence == "SYNONYMOUS" or mi.consequence == "UTR"}
+    _all_mis = _mutated_isoforms.compact.flatten.uniq
+    non_synonymous_mutated_isoforms = MutatedIsoform.setup(_all_mis, organism).reject{|mi| mi.consequence == "SYNONYMOUS" or mi.consequence == "UTR"}
 
-    mi_gene = Misc.process_to_hash(non_synonymous_mutated_isoforms){|mis| mis.protein.gene.clean_annotations}
+    mi_gene = Misc.process_to_hash(non_synonymous_mutated_isoforms.clean_annotations){|mis| non_synonymous_mutated_isoforms.protein.gene.clean_annotations}
 
     _mutated_isoforms = _mutated_isoforms.clean_annotations if _mutated_isoforms.respond_to? :clean_annotations
 
     from_protein = _mutated_isoforms.collect{|mis|
-      genes = mis.nil? ? [] : mi_gene.chunked_values_at(mis).compact
-      Gene.setup(genes.uniq, "Ensembl Gene ID", organism)
+      genes = mis.nil? ? [] : mi_gene.chunked_values_at(mis).compact.uniq
+      #Gene.setup(genes, "Ensembl Gene ID", organism)
+      genes
     }
 
-    is_exon_junction = self.in_exon_junction?.zip(self.type).collect{|in_ex,type| in_ex and type != "none"}
+    _transcripts_with_affected_splicing = self.transcripts_with_affected_splicing.clean_annotations
+    transcript2gene = Organism.gene_transcripts(organism).index :target => "Ensembl Gene ID", :fields => ["Ensembl Transcript ID"], 
+      :unamed => true, :persist => true
 
-    genes_with_altered_splicing = self.transcripts_with_affected_splicing.collect{|transcripts| 
-      (transcripts and transcripts.any?) ? nil : transcripts.gene
+    genes_with_altered_splicing = _transcripts_with_affected_splicing.collect{|transcripts| 
+      (transcripts and transcripts.any?) ? transcript2gene.values_at(*transcripts) : nil
     }
 
     from_protein.each_with_index do |list, i|
-      if is_exon_junction[i] and genes_with_altered_splicing[i]
-        list.concat genes_with_altered_splicing[i] 
+      if spliced_genes = genes_with_altered_splicing[i] and spliced_genes
+        list.concat spliced_genes
         list.uniq!
       end
     end
@@ -274,9 +278,10 @@ module GenomicMutation
   end
 
   property :relevant? => :array2single do
-    affected_genes.zip(in_exon_junction?).collect{|genes,in_exj| 
-      (genes and genes.any?) or in_exj
-    }
+    #affected_genes.clean_annotations.zip(in_exon_junction?).collect{|genes,in_exj| 
+    #  (genes and genes.any?) or in_exj
+    #}
+    affected_genes.clean_annotations.collect{|g| g.any?  }
   end
 
   property :damaged_genes => :array2single do |*args|
@@ -309,7 +314,9 @@ module GenomicMutation
   end
 
   property :exon_junctions => :array do
-    Sequence.job(:exon_junctions_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run.chunked_values_at(self)
+    Sequence.job(:exon_junctions_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run.
+      tap{|t| t.unnamed = true}.
+      chunked_values_at(self)
   end
 
   property :over_range? => :array2single do |range_chr,range|
@@ -344,7 +351,8 @@ module GenomicMutation
     exon2transcript_index = GenomicMutation.transcripts_for_exon_index(organism)
     transcript_exon_rank  = GenomicMutation.exon_rank_index(organism)
 
-    transcripts = exon_junctions.collect{|junctions|
+    _exon_junctions = self.exon_junctions
+    transcripts = _exon_junctions.collect{|junctions|
       if junctions.nil? or junctions.empty?
         []
       else
@@ -377,7 +385,7 @@ module GenomicMutation
     if gene
       transcripts_with_affected_splicing.collect{|list| list.nil? ? false : list.gene.include?(gene)}
     else
-      transcripts_with_affected_splicing.collect{|list| list.nil? ? false : list.any?}
+      transcripts_with_affected_splicing.clean_annotations.collect{|list| list.nil? ? false : list.any?}
     end
   end
 
