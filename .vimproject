@@ -22,6 +22,9 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
   }
   genomics_kb.rb
  }
+ test=test{
+  test_helper.rb
+  }
  www=www{
   views=views{
    entity=entity{
