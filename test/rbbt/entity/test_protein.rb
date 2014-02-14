@@ -30,8 +30,6 @@ class TestProtein < Test::Unit::TestCase
   def test_ortholog
     assert_equal "ENSMUSP00000020329", PROTEIN.ortholog("Mmu/jun2011")
   end
-
-
 end
 
 

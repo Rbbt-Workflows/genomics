@@ -8,7 +8,7 @@ require 'rbbt/entity/mutated_isoform'
 class TestMutatedIsoform < Test::Unit::TestCase
   MUTATION = MutatedIsoform.setup("ENSP00000275493:G719A", "Hsa/jun2011")
 
-  def test_protein
+  def _test_protein
     assert_equal "EGFR", MUTATION.protein.gene.to("Associated Gene Name")
   end
 

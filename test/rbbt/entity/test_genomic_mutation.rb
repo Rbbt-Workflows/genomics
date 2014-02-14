@@ -11,18 +11,17 @@ class TestGenomicMutation < Test::Unit::TestCase
   SPLICING = GenomicMutation.setup("18:14787040:A", "Test", "Hsa/jun2011")
   SPLICING2 = GenomicMutation.setup("3:125551372:G:1265.90:1", "test", "Hsa/jun2011", true)
 
-  FORWARD_STRAND_FIRST_EXON_START = GenomicMutation.setup("10:89622870", "Test", "Hsa/jun2011")
-  FORWARD_STRAND_FIRST_EXON_END   = GenomicMutation.setup("10:89624305", "Test", "Hsa/jun2011")
-  FORWARD_STRAND_LAST_EXON_START  = GenomicMutation.setup("10:89725044", "Test", "Hsa/jun2011")
-  FORWARD_STRAND_LAST_EXON_END    = GenomicMutation.setup("10:89731687", "Test", "Hsa/jun2011")
+  FORWARD_STRAND_FIRST_EXON_START = GenomicMutation.setup("10:89622870:A", "Test", "Hsa/jun2011")
+  FORWARD_STRAND_FIRST_EXON_END   = GenomicMutation.setup("10:89624305:A", "Test", "Hsa/jun2011")
+  FORWARD_STRAND_LAST_EXON_START  = GenomicMutation.setup("10:89725044:A", "Test", "Hsa/jun2011")
+  FORWARD_STRAND_LAST_EXON_END    = GenomicMutation.setup("10:89731687:T", "Test", "Hsa/jun2011")
 
-  REVERSE_STRAND_FIRST_EXON_START = GenomicMutation.setup("2:198256698", "Test", "Hsa/jun2011")
-  REVERSE_STRAND_FIRST_EXON_END   = GenomicMutation.setup("2:198257185", "Test", "Hsa/jun2011")
-  REVERSE_STRAND_LAST_EXON_START  = GenomicMutation.setup("2:198299696", "Test", "Hsa/jun2011")
-  REVERSE_STRAND_LAST_EXON_END    = GenomicMutation.setup("2:198299815", "Test", "Hsa/jun2011")
+  REVERSE_STRAND_FIRST_EXON_START = GenomicMutation.setup("2:198256698:A", "Test", "Hsa/jun2011")
+  REVERSE_STRAND_FIRST_EXON_END   = GenomicMutation.setup("2:198257185:A", "Test", "Hsa/jun2011")
+  REVERSE_STRAND_LAST_EXON_START  = GenomicMutation.setup("2:198299696:A", "Test", "Hsa/jun2011")
+  REVERSE_STRAND_LAST_EXON_END    = GenomicMutation.setup("2:198299815:A", "Test", "Hsa/jun2011")
 
   IRRELEVANT_MUTATION = GenomicMutation.setup("11:12278388:T:82.0", "Test", "Hsa/jun2011", true)
-
 
   def test_mutated_isoforms
     assert MUTATION.mutated_isoforms.length > 1

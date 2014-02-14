@@ -29,7 +29,33 @@ module GenomicMutation
       return [header, next_line]
     end
 
-    def self.open(vcf)
+    def self.parse_info_fields(info_fields, info)
+      values = {}
+      info.split(";").each{|p| k,v = p.split("="); v ||= true; values[k] = v}
+      info_fields.collect{|f| values[f] }
+    end
+
+    def self.parse_format_fields(format_fields, format, samples)
+      listed_format = format.split(":")
+      sample_values = samples.collect do |sample|
+        values = {}
+        sample.split(':').each_with_index do |v,i|
+          values[listed_format[i]] = v
+        end
+        values
+      end
+
+      res = []
+      samples.each_with_index do |sample,i|
+        format_fields.each{|f|
+          res << sample_values[i][f]
+        }
+      end
+      res
+    end
+
+    def self.open_stream(vcf)
+      vcf = TSV.get_stream vcf
       header, line = header vcf
 
       if line =~ /#/
@@ -39,50 +65,56 @@ module GenomicMutation
         fields = %w(CHROM POS ID REF ALT QUAL FILTER INFO FORMAT Sample)[0..line.split(/\s+/).length-1]
       end
 
-      tsv = TSV.setup({}, :key_field => "Genomic Mutation", :fields => fields)
-      while line
-        if line =~ /\w/
+      info_fields = header["INFO"].keys if header.include? "INFO"
+      format_fields = header["FORMAT"].keys if header.include? "FORMAT"
+
+      info_pos = fields.index("INFO")
+      format_pos = fields.index("FORMAT")
+      sample_fields = format_pos ? fields[format_pos+1..-1] : []
+
+      stream_fields = ["RS ID"]
+      stream_fields.concat info_fields if info_pos
+      stream_fields.concat sample_fields.collect{|s| format_fields.collect{|f| [s,f] * ":" }}.flatten if format_pos
+
+      stream = Misc.open_pipe do |sin|
+        sin.puts TSV.header_lines "Genomic Mutation", stream_fields, :type => :list
+        while line
+          if line !~ /\w/
+            line = vcf.gets
+            next
+          end
+
+          line_values = []
+
           chr, position, id, ref, alt, *rest = parts = line.split(/\s+/)
+          chr.sub! 'chr', '' 
           position, alt = Misc.correct_vcf_mutation(position.to_i, ref, alt)
           mutation = [chr, position.to_s, alt * ","] * ":"
-          tsv[mutation] = parts
-        end
-        line = vcf.gets
-      end
 
-      # Unfold FORMAT fields for each sample
-      if format_pos = tsv.fields.index("FORMAT")
-        format_fields = tsv[tsv.keys.first][format_pos].split(":")
+          line_values << mutation
+          line_values << id
 
-        sample_fields = tsv.fields.values_at *(format_pos+1..tsv.fields.length-1).to_a
-
-        format_fields.each_with_index do |ifield,i|
-          sample_fields.each_with_index do |sfield,j|
-            tsv.add_field "#{sfield}:#{ ifield }" do |mutation, values|
-              values[format_pos+1+j].split(":")[i]
-            end
+          if info_pos
+            info_values = parse_info_fields(info_fields, parts[info_pos])
+            line_values.concat info_values
           end
-        end
-      end
 
-      # Unfold INFO fields
-      if info_pos = tsv.fields.index("INFO")
-        info_fields = tsv.values.collect{|v| v[info_pos].split(";").collect{|p| p.partition("=").first}}.compact.flatten.uniq.sort
-
-        info_fields.each do |ifield|
-          tsv.add_field "INFO:#{ ifield }" do |mutation, values|
-            v = values[info_pos].split(";").select{|p| p.partition("=").first == ifield}.first
-            if v
-              field, sep, value = v.partition "="
-              sep.empty? ? "true" : value
-            else
-              "false"
-            end
+          if format_pos
+            format_values = parse_format_fields(format_fields, parts[format_pos], parts[format_pos+1..-1])
+            line_values.concat format_values
           end
+
+          sin.puts line_values * "\t"
+
+          line = vcf.gets
         end
       end
 
-      tsv
+      stream
+    end
+
+    def self.open(vcf)
+      TSV.open(self.open_stream(vcf), :filename => TSV.get_filename(vcf))
     end
   end
 end

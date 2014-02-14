@@ -11,10 +11,10 @@ class Test::Unit::TestCase
   include FileUtils
 
   def setup
-    Persist.cachedir = Rbbt.tmp.test.persistence.find :user
+    #Persist.cachedir = Rbbt.tmp.test.persistence.find :user
   end
 
-  def teardown
+  def _teardown
     FileUtils.rm_rf Path.setup("", 'rbbt').tmp.test.find :user
     Persist::CONNECTIONS.values.each do |c| begin c.close; rescue; end; end
     Persist::CONNECTIONS.clear

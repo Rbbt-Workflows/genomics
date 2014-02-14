@@ -3,28 +3,68 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
  lib=lib {
   rbbt=rbbt{
    entity=entity{
-    chromosome_range.rb
-    cnv.rb
     gene.rb
+    gene=gene{
+     indices.rb
+
+     basic.rb
+     extra.rb
+     drugs.rb
+     literature.rb
+    }
+
     genomic_mutation.rb
     genomic_mutation=genomic_mutation{
+     indices.rb
      vcf.rb
+
+     basic.rb
+     watson.rb
+     types.rb
+     features.rb
+     consequences.rb
+     snps.rb
+     extra.rb
     }
+
+    mutated_isoform.rb
+    mutated_isoform=mutated_isoform{
+     basic.rb
+     consequence.rb
+     domains.rb
+     damage.rb
+     extra.rb
+    }
+
+    protein.rb
+    protein=protein{
+     indices.rb
+
+     basic.rb
+     extra.rb
+    }
+
+    transcript.rb
+
+    chromosome_range.rb
+
+    cnv.rb
+
     genotype.rb
     interactor.rb
     methylation.rb
-    mutated_isoform.rb
     pmid.rb
-    protein.rb
     snp.rb
-    transcript.rb
    }
   }
   genomics_kb.rb
  }
  test=test{
   test_helper.rb
+  data=data{
+   test.vcf
   }
+ }
  www=www{
   views=views{
    entity=entity{
