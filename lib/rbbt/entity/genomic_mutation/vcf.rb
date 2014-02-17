@@ -72,7 +72,7 @@ module GenomicMutation
       format_pos = fields.index("FORMAT")
       sample_fields = format_pos ? fields[format_pos+1..-1] : []
 
-      stream_fields = ["RS ID"]
+      stream_fields = ["RS ID", "Quality"]
       stream_fields.concat info_fields if info_pos
       stream_fields.concat sample_fields.collect{|s| format_fields.collect{|f| [s,f] * ":" }}.flatten if format_pos
 
@@ -86,13 +86,15 @@ module GenomicMutation
 
           line_values = []
 
-          chr, position, id, ref, alt, *rest = parts = line.split(/\s+/)
-          chr.sub! 'chr', '' 
+          chr, position, id, ref, alt, qual, filter, *rest = parts = line.split(/\s+/)
+          chr.sub! 'chr', ''
+
           position, alt = Misc.correct_vcf_mutation(position.to_i, ref, alt)
           mutation = [chr, position.to_s, alt * ","] * ":"
 
           line_values << mutation
           line_values << id
+          line_values << qual
 
           if info_pos
             info_values = parse_info_fields(info_fields, parts[info_pos])
