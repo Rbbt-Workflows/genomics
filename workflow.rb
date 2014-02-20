@@ -14,24 +14,26 @@ module Genomics
     named_fields = tsv.fields.select{|f| Entity.formats.include? f }
     named_field_pos = named_fields.collect{|f| tsv.identify_field f}
 
-    return tsv if named_fields.empty?
-    tsv.unnamed = false
-    new = {}
-    tsv.each do |k, values|
-      key = k.respond_to?(:name) ? k.name : k
-      case values
-      when Array
-        named_field_pos.each do |pos|
-          values[pos].replace values[pos].name
+    if named_fields and named_fields.any?
+      tsv.unnamed = false
+      new = {}
+      tsv.each do |k, values|
+        key = k.respond_to?(:name) ? k.name : k
+        case values
+        when Array
+          named_field_pos.each do |pos|
+            values[pos].replace(values[pos].name || values[pos])
+          end
+          new[key] = values
+        else
+          new[key] = values.name
         end
-        new[key] = values
-      else
-        new[key] = values.name
       end
 
+      tsv = tsv.annotate new
     end
 
-    tsv.annotate new
+    tsv
   end
   export_asynchronous :names
 end
