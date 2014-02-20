@@ -6,9 +6,6 @@ require 'rbbt/entity/gene'
 require 'rbbt/entity/mutated_isoform'
 
 require 'rbbt/sources/organism'
-require 'rbbt/sources/genomes1000'
-require 'rbbt/sources/COSMIC'
-require 'rbbt/sources/dbSNP'
 
 require 'rbbt/mutation/mutation_assessor'
 

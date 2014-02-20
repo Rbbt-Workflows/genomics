@@ -1,3 +1,6 @@
+require 'rbbt/sources/genomes1000'
+require 'rbbt/sources/COSMIC'
+require 'rbbt/sources/dbSNP'
 
 module GenomicMutation
 
