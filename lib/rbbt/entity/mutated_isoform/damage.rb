@@ -1,7 +1,7 @@
 require 'rbbt/workflow'
 require 'rbbt/entity/mutated_isoform/domains'
-require 'rbbt/mutation/mutation_assessor'
-require 'rbbt/mutation/sift'
+#require 'rbbt/mutation/mutation_assessor'
+#require 'rbbt/mutation/sift'
 
 Workflow.require_workflow 'MutEval'
 
