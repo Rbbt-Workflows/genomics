@@ -1,5 +1,4 @@
 require 'rbbt/sources/uniprot'
-require 'nokogiri'
 
 module MutatedIsoform
 
@@ -15,6 +14,7 @@ module MutatedIsoform
   end
 
   property :marked_svg => :single2array do
+    require 'nokogiri'
     svg = Open.read(protein.ensembl_protein_image_url)
     
     seq_len = protein.sequence_length
