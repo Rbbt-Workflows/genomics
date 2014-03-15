@@ -51,7 +51,6 @@ Genomics.knowledge_base.register "pina", Pina.protein_protein,
   :undirected => true, 
   :target => "Interactor UniProt/SwissProt Accession=~UniProt/SwissProt Accession"
 
-#Genomics.knowledge_base.register 'matador'     , Matador.protein_drug, :merge => true, :source => "Ensembl Protein ID=>Ensembl Gene ID", :identifiers => Organism.identifiers("Hsa/jan2013")
 Genomics.knowledge_base.register 'matador' do    
   tsv = Matador.protein_drug.tsv :merge => true
   tsv.identifiers = Organism.identifiers("Hsa/jan2013")
