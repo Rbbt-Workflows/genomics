@@ -2,8 +2,8 @@ require 'rbbt-util'
 
 require 'rbbt/workflow'
 
-Workflow.require_workflow "Genomics"
 require 'rbbt/entity'
+Workflow.require_workflow "Genomics"
 require 'rbbt/entity/gene'
 
 require 'rbbt/association'
