@@ -27,4 +27,10 @@ module MutatedIsoform
       Transcript.setup(protein.transcript.zip(self.collect{|mutation| mutation.split(":").first}).collect{|p| p.compact.first}, "Ensembl Transcript ID", organism)
     end
   end
+
+  property :name => :array2single do
+    self.zip(protein.gene.name).collect do |mi,n|
+      n.nil? ? mi : "(#{ n }) #{ mi }"
+    end
+  end
 end

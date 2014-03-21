@@ -9,6 +9,10 @@
       %dt Protein
       %dd= entity.protein.link
 
+    - if entity.protein.gene
+      %dt Gene
+      %dd= entity.protein.gene.link
+
     %dt Consequence
     %dd= entity.consequence
 
