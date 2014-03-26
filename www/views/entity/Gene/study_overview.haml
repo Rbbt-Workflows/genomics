@@ -22,19 +22,8 @@
       - next if mutation_count > 100_000
       - genotyped_samples = study.samples.select_by(:has_genotype?)
       - next if genotyped_samples.empty?
+      - log study, "Processing #{ study }"
 
-      - log :loading_significance, "Loading significance"
-      - job = NKIWorkflow.job(:significantly_mutated, study, :study => study, :threshold => 0.1)
-      - significance_path = job.run(true).path
-      - significance = Persist.persist_tsv significance_path, study, {}, settings.persist_options.merge(:prefix => "Significance") do |data|
-        - significance = significance_path.tsv
-        - significance.identifiers = Organism.identifiers(study.organism)
-        - significance = significance.change_key "Ensembl Gene ID"
-        - data.serializer = significance.type
-        - significance.annotate data
-        - data.merge! significance
-        - data
-      - log :loading_significance, "Loading significance [done]"
 
       - num_samples = genotyped_samples.length
 
@@ -42,16 +31,12 @@
       - row << genotyped_samples.length
       - row << mutation_count.to_f / genotyped_samples.length
 
-      - log :mutated_samples
       - mutated_samples = study.samples.annotate study.knowledge_base.subset(:sample_genes, "Sample" => genotyped_samples, "Gene" => [gene]).source_entity 
 
-      - log :affected_samples
       - affected_samples = study.samples.annotate study.knowledge_base.subset(:sample_genes, "Sample" => genotyped_samples, "Gene" => [gene]).select{|match| match.info["Affected isoform"] == "true" }.source_entity
 
-      - log :damaged_samples
       - damaged_samples = study.samples.annotate study.knowledge_base.subset(:sample_genes, "Sample" => genotyped_samples, "Gene" => [gene]).select{|match| match.info["Damaged isoform"] == "true" }.source_entity
 
-      - log :storing_samples
       - if mutated_samples.any?
         - row << mutated_samples.list_link("%.3g" % ((list_length = mutated_samples.length).to_f * 100 / num_samples) + " % (#{list_length})", "Samples with #{gene_name} mutated in #{ study }")
       - else
@@ -65,9 +50,9 @@
       - else
         - row << "None"
 
-      - row << (significance[gene] ? significance[gene]["p.value"].first.to_f : 1)
+      - significance = Sequence.job(:binomial_significance, study, :positions => study.cohort.metagenotype, :threshold => 0.1).run
+      - row << (significance[gene] ? significance[gene]["p.value"].to_f : 1)
 
-      - log :recording
       - tsv[study] = row
 
     - tsv

@@ -6,6 +6,8 @@
 
     %p #{list.length} samples
 
+    - ddd list.sort[0..10]
+    - ddd sample_info.keys.sort[0..10]
     = fragment do
       = table :table_id => "Clinical features of #{ list_id }" do
         - sample_info.select(:key => list).tap{|t| t.entity_options = {:study => list.study}}

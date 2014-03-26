@@ -41,6 +41,12 @@ module Protein
     Gene.setup(to("Ensembl Protein ID").clean_annotations.collect{|e| e.nil? ? e : e.dup}, "Ensembl Protein ID", organism).ensembl
   end
 
+  property :name => :array do
+    self.zip(gene.name).collect{|prot,gene|
+      gene.nil? ? prot : "(#{ gene }) #{ prot }"
+    }
+  end
+
   property :sequence => :array2single do
     Protein.ensp2sequence(organism, self.ensembl)
   end

@@ -25,7 +25,7 @@
   - list = study.match_samples(list)
   - rest = study.match_samples(rest) - list
 
-  - diffs = matrix.sample_differences(list, rest)
+  - diffs = matrix.differential(list, rest)
 
   - Open.open(diffs) do |stream|
     - if not TSV.parse_header(stream).fields.include? "p.values"

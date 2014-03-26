@@ -24,7 +24,7 @@
     %h4 Genotype
 
     -# Genotype mutations
-    - log :mutations
+    - log :mutations, "Processing genotypes"
     - mutation_matches = study.knowledge_base.subset(:mutation_genes, "Genomic Mutation" => :all, "Gene" => list)
     - relevant_mutation_matches = study.knowledge_base.subset(:mutation_affected_genes, "Genomic Mutation" => :all, "Gene" => list)
     - damaging_mutation_matches = study.knowledge_base.subset(:mutation_damaged_genes, "Genomic Mutation" => :all, "Gene" => list)
@@ -75,7 +75,7 @@
     = tool :figure, :plot => :pie, :float => true, :data => data, :title => "Genes by genotype"
 
     -# Genotype samples
-    - log :sample_mutations
+    - log :sample_mutations, "Sample genotypes"
     - gene_matches = study.knowledge_base.subset(:sample_genes, "Sample" => :all, "Gene" => list)
     - relevant_gene_matches = gene_matches.select{|m| m.value["Affected Isoform"] == 'true' }
     - damaged_gene_matches = gene_matches.select{|m| m.value["Damaged Isoform"] == 'true' }
@@ -114,7 +114,7 @@
 
   %hr
 
-  - log :mutation_table
+  - log :mutation_table, "Mutation description table"
 
   - header "Mutated samples", "Link"
   - header "Affected samples", "Link"
@@ -149,7 +149,7 @@
 
   - matches = study.knowledge_base.subset('sample_genes', "Gene" => list, "Sample" => :all)
 
-  - log :mutation_incidence
+  - log :mutation_incidence, "Mutation incidence plot"
   - if matches.any?
     - matrix = AssociationItem.incidence matches
     - matrix.fields = list.annotate(matrix.fields).name

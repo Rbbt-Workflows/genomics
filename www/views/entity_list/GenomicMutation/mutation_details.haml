@@ -5,12 +5,17 @@
   - watson = false if watson == "false"
   - list.watson = watson
 
+  - log :genes, "Find genes for mutations"
   - genes_for_mutations = Misc.process_to_hash(list){|list| list.genes}
+  - log :damage, "Find damage for mutations"
   - damage_for_mutations = Misc.process_to_hash(list){|l| l.collect{|m| m.damaging? ? "Damaging" : "Not Damaging"}}
 
   - mutations = list
+  - log :mutated_isoforms, "Find mutated isoforms for mutations"
   - mutated_isoforms = Misc.process_to_hash(mutations){|mutations| mutations.mutated_isoforms}
   - all_mutated_isoforms = MutatedIsoform.setup(mutated_isoforms.values.compact.flatten.uniq, organism)
+
+  - log :damage_scores, "Find damage scores of mutated isoforms"
   - damage_scores = Misc.process_to_hash(all_mutated_isoforms){|all_mutated_isoforms| all_mutated_isoforms.damage_scores}
 
   - header "Genes", "Ensembl Gene ID", :organism => organism, :watson => watson
@@ -18,8 +23,10 @@
   - table_options = nil
 
   - tsv = TSV.setup({}, :key_field => "Genomic Mutation", :fields => ["Ref.", "SNP", "Genes", "Worst Consequence", "Type", "Relevant?", "Consequences"], :type => :double, :namespace => organism, :entity_options => {:watson => watson})
+  - log :mutations, "Processin mutation info"
+  -# TSV.traverse list, :threads => 4, :into => tsv do |mutation|
   - list.each do |mutation|
-    - mis = mutation.mutated_isoforms
+    - mis = mutated_isoforms[mutation]
     - values = []
     - values << (watson ? mutation.reference : mutation.gene_strand_reference)
     - values << mutation.genomes_1000
@@ -29,6 +36,7 @@
     - values << mutation.relevant?
     - values << ((mis.nil? or mis.empty? ) ? "" : mis.consequence.uniq.sort * ", ")
     - tsv[mutation] = values
+    -# [mutation, values]
   - tsv.entity_options = {:watson => watson, :organism => organism}
   - tsv
 
