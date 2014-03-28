@@ -25,8 +25,12 @@ module Genomics
         key = k.respond_to?(:name) ? k.name : k
         case values
         when Array
-          named_field_pos.each do |pos|
-            values[pos].replace(values[pos].name || values[pos]) if values[pos].respond_to? :name
+          if tsv.type == :flat
+            values = values.name if values.respond_to? :name
+          else
+            named_field_pos.each do |pos|
+              values[pos].replace(values[pos].name || values[pos]) if values[pos].respond_to? :name
+            end
           end
           new[key] = values
         else
