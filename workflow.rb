@@ -11,37 +11,64 @@ require 'genomics_kb'
 module Genomics
   extend Workflow
 
-  input :tsv, :tsv, "TSV file to name", nil
+  input :tsv, :tsv, "TSV file to name", nil, :stream => true
   task :names => :tsv do |tsv|
+    named = TSV::Dumper.new tsv.options, path
 
-    named_fields = tsv.all_fields.select{|f| Entity.formats.include? f }
-    named_field_pos = named_fields.collect{|f| tsv.identify_field f }
+    named.init
 
-    if named_fields and named_fields.any?
-      named_field_pos.delete :key
-      tsv.unnamed = false
-      new = {}
-      tsv.through do |k, values|
-        key = k.respond_to?(:name) ? k.name : k
-        case values
-        when Array
-          if tsv.type == :flat
-            values = values.name if values.respond_to? :name
-          else
-            named_field_pos.each do |pos|
-              values[pos].replace(values[pos].name || values[pos]) if values[pos].respond_to? :name
-            end
-          end
-          new[key] = values
-        else
-          new[key] = values.name
-        end
+    case tsv.type
+    when :single
+      TSV.traverse tsv, :into => named do |k,value|
+        k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
+        k = k.name if k.respond_to? :name
+
+        value = Misc.prepare_entity(value, tsv.fields.first) if tsv.fields
+        value = value.name if value.respond_to? :name
+
+        [k,value]
       end
+    when :list
+      TSV.traverse tsv, :into => named do |k,list|
+        k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
+        k = k.name if k.respond_to? :name
 
-      tsv = tsv.annotate new
+        i = 0
+        values = list.collect do |value|
+          value = Misc.prepare_entity(value, tsv.fields[i]) if tsv.fields
+          value = value.name if value.respond_to? :name
+          value
+          i += 1
+        end
+        [k,values]
+      end
+    when :flat
+      TSV.traverse tsv, :into => named do |k,values|
+        k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
+        k = k.name if k.respond_to? :name
+
+        values = Misc.prepare_entity(values, tsv.fields.first) if tsv.fields
+        begin
+          values = values.name if values.respond_to? :name
+        rescue
+          Log.exception $!
+        end
+
+        [k,values]
+      end
+    when :double
+      fields = tsv.fields.dup if tsv.fields
+      TSV.traverse tsv, :into => named do |k,values_list|
+        k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
+        k = k.name if k.respond_to? :name
+
+        i = 0
+        values = values_list.collect do |values|
+          values = Misc.prepare_entity(values, tsv.fields[i]) if tsv.fields
+          i += 1
+        end
+        [k,values]
+      end
     end
-
-    tsv
   end
-  export_asynchronous :names
 end
