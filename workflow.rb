@@ -20,6 +20,7 @@ module Genomics
     case tsv.type
     when :single
       TSV.traverse tsv, :into => named do |k,value|
+        k = k.first if k
         k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
         k = k.name if k.respond_to? :name
 
@@ -30,6 +31,7 @@ module Genomics
       end
     when :list
       TSV.traverse tsv, :into => named do |k,list|
+        k = k.first if k
         k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
         k = k.name if k.respond_to? :name
 
@@ -44,6 +46,7 @@ module Genomics
       end
     when :flat
       TSV.traverse tsv, :into => named do |k,values|
+        k = k.first if k
         k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
         k = k.name if k.respond_to? :name
 
@@ -59,6 +62,7 @@ module Genomics
     when :double
       fields = tsv.fields.dup if tsv.fields
       TSV.traverse tsv, :into => named do |k,values_list|
+        k = k.first if k
         k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
         k = k.name if k.respond_to? :name
 
@@ -66,7 +70,9 @@ module Genomics
         values = values_list.collect do |values|
           values = Misc.prepare_entity(values, tsv.fields[i]) if tsv.fields
           i += 1
+          values
         end
+        values = values.name if values.respond_to? :name
         [k,values]
       end
     end

@@ -78,11 +78,8 @@ module GenomicMutation
 
       stream = Misc.open_pipe do |sin|
         sin.puts TSV.header_lines "Genomic Mutation", stream_fields, :type => :list
-        while line
-          if line !~ /\w/
-            line = vcf.gets
-            next
-          end
+        TSV.traverse vcf, :cpus => 5, :type => :array, :into => sin do |line|
+          next if line !~ /\w/
 
           line_values = []
 
@@ -106,9 +103,7 @@ module GenomicMutation
             line_values.concat format_values
           end
 
-          sin.puts line_values * "\t"
-
-          line = vcf.gets
+          line_values * "\t"
         end
       end
 

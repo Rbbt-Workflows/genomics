@@ -25,7 +25,7 @@ module GenomicMutation
   end
 
   property :reference => :array2single do
-    tsv = Sequence.job(:reference_allele_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run
+    tsv = Sequence.job(:reference, jobname, :organism => organism, :positions => self.clean_annotations).run
     tsv.chunked_values_at self
   end
 
