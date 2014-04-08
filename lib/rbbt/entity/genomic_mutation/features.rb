@@ -1,7 +1,7 @@
 module GenomicMutation
 
   property :genes => :array2single do
-    genes_tsv = Sequence.job(:genes_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run
+    genes_tsv = Sequence.job(:genes, jobname, :organism => organism, :positions => self.clean_annotations).run
     genes_tsv.unnamed = true
     genes = nil
     genes = genes_tsv.chunked_values_at self
