@@ -7,7 +7,7 @@ require 'rbbt/entity/mutated_isoform'
 
 require 'rbbt/sources/organism'
 
-require 'rbbt/mutation/mutation_assessor'
+#require 'rbbt/mutation/mutation_assessor'
 
 Workflow.require_workflow "Sequence"
 
