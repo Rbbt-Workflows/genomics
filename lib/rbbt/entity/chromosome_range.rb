@@ -41,7 +41,7 @@ module ChromosomeRange
 
   property :genes => :array2single do
     unit = self.unit
-    Gene.setup(Sequence.job(:genes_at_ranges, "ChromosomeRange", :organism => organism, :ranges => unit).run.tap{|t| t.namespace = organism}.chunked_values_at(unit), "Ensembl Gene ID", organism)
+    Gene.setup(Sequence.job(:genes_at_ranges, "ChromosomeRange", :organism => organism, :ranges => unit).exec.tap{|t| t.namespace = organism}.chunked_values_at(unit), "Ensembl Gene ID", organism)
   end
 
   property :ensembl_browser => :single2array do
