@@ -91,4 +91,5 @@ module Genomics
       end
     end
   end
+  export_synchronous :names
 end

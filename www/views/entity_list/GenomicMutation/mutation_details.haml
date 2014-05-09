@@ -29,7 +29,7 @@
     - mis = mutated_isoforms[mutation]
     - values = []
     - values << (watson ? mutation.reference : mutation.gene_strand_reference)
-    - values << mutation.genomes_1000
+    - values << [] #mutation.genomes_1000
     - values << mutation.genes
     - values << mutation.worst_consequence
     - values << mutation.type
