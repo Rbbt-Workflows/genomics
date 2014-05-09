@@ -6,7 +6,7 @@ module SNP
   self.format = ["SNP", "SNP ID", "RSID"]
 
   def self.dbSNP_info
-    @@dbSNP_info ||= DbSNP.mutations.tsv :persist => true
+    @@dbSNP_info ||= DbSNP.rsids.tsv :persist => true
   end
 
   property :dbSNP_info => :array2single do

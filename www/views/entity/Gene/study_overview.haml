@@ -50,7 +50,7 @@
       - else
         - row << "None"
 
-      - significance = Sequence.job(:binomial_significance, study, :positions => study.cohort.metagenotype, :threshold => 0.1).run
+      - significance = Sequence.job(:binomial_significance, study, :mutations => study.cohort.metagenotype, :threshold => 0.1).run
       - row << (significance[gene] ? significance[gene]["p.value"].to_f : 1)
 
       - tsv[study] = row

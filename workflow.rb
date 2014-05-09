@@ -13,8 +13,9 @@ module Genomics
 
   input :tsv, :tsv, "TSV file to name", nil, :stream => true
   task :names => :tsv do |tsv|
-    named = TSV::Dumper.new tsv.options, path
+    tsv = TSV::Parser.new tsv if IO === tsv
 
+    named = TSV::Dumper.new tsv.options, path
     named.init
 
     case tsv.type
@@ -37,10 +38,13 @@ module Genomics
 
         i = 0
         values = list.collect do |value|
-          value = Misc.prepare_entity(value, tsv.fields[i]) if tsv.fields
-          value = value.name if value.respond_to? :name
-          value
-          i += 1
+          begin
+            value = Misc.prepare_entity(value, tsv.fields[i]) if tsv.fields
+            value = value.name if value.respond_to? :name
+            value
+          ensure
+            i += 1
+          end
         end
         [k,values]
       end
@@ -66,14 +70,24 @@ module Genomics
         k = Misc.prepare_entity(k, tsv.key_field) if tsv.key_field
         k = k.name if k.respond_to? :name
 
-        i = 0
-        values = values_list.collect do |values|
-          values = Misc.prepare_entity(values, tsv.fields[i]) if tsv.fields
-          i += 1
-          values
+        if fields
+          i = 0
+          new_value_list = values_list.collect do |values|
+            begin
+              values = Misc.prepare_entity(values, fields[i]) 
+              if values.respond_to? :name
+                values.name
+              else
+                values
+              end
+            ensure
+              i += 1
+            end
+          end
+          [k,new_value_list]
+        else
+          [k,values_list]
         end
-        values = values.name if values.respond_to? :name
-        [k,values]
       end
     end
   end

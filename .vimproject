@@ -132,7 +132,6 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
    }
    entity_map=entity_map{
     Gene=Gene{
-     rank_enrichment.haml
     }
    }
   }
