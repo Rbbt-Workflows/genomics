@@ -111,34 +111,6 @@ module MutatedIsoform
     end
   end
 
-  #property :sift_scores => :array2single do
-  #  begin
-  #    missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
-  #    res = MutEval.job(:sift, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
-  #    res.chunked_values_at(self).collect{|v| (v.nil? or v["SIFT Score"].nil? or v["SIFT Score"].empty?) ? nil : 1.0 - v["SIFT Score"].to_f}
-  #  rescue
-  #    Log.warn $!.message
-  #    [nil] * self.length
-  #  end
-  #end
-
-  #property :mutation_assessor_scores => :array2single do
-  #  range = {nil => nil,
-  #    ""  => nil,
-  #    "neutral" => 0,
-  #    "low" => 0.5,
-  #    "medium" => 0.7,
-  #    "high" => 1.0}
-
-  #  begin
-  #    missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
-  #    MutEval.job(:mutation_assessor, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run.chunked_values_at(self).collect{|v| (v.nil? or v["Mutation Assessor Prediction"].nil? or v["Mutation Assessor Prediction"].empty?) ? nil : range[v["Mutation Assessor Prediction"]]}
-  #  rescue
-  #    Log.warn $!.message
-  #    [nil] * self.length
-  #  end
-  #end
-
   property :dbNSFP => :array2single do |*args|
     method = args.first || "all"
     missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}

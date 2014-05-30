@@ -63,7 +63,7 @@
       - hotspot = distances.inject(0){|acc,e|  acc += 1 if e == 0; acc}.to_f / distances.length
       - unif = (0..1000).to_a.collect{ rand }
       - scaled_positions = positions.collect{|p| p.to_f / protein_size}
-      - hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
+      -# hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
       %dl
         %dt COSMIC Mutations
         %dd 
