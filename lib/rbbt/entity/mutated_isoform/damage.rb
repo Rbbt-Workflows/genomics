@@ -3,7 +3,7 @@ require 'rbbt/workflow'
 #require 'rbbt/mutation/mutation_assessor'
 #require 'rbbt/mutation/sift'
 
-Workflow.require_workflow 'MutEval'
+#Workflow.require_workflow 'MutEval'
 
 module MutatedIsoform
   DEFAULT_DAMAGE_PREDICTORS = [:sift, :mutation_assessor]
@@ -86,35 +86,35 @@ module MutatedIsoform
     end
   end
 
-  property :snps_and_go_scores => :array2single do
-    begin
-      missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
-      res = MutEval.job(:snps_and_go, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
-      res.chunked_values_at(self).collect{|v| (v.nil? or v["SNPSandGO Score"].nil? or v["SNPSandGO Score"].empty?) ? 
-        nil : 
-        (v["SNPSandGO Prediction"] == "Disease" ? 1.0 - (10.0 - v["SNPSandGO Score"].to_f) / 20 : 0 + (10.0 - v["SNPSandGO Score"].to_f) / 20)
-      }
-    rescue
-      Log.warn $!.message
-      [nil] * self.length
-    end
-  end
+  #property :snps_and_go_scores => :array2single do
+  #  begin
+  #    missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
+  #    res = MutEval.job(:snps_and_go, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
+  #    res.chunked_values_at(self).collect{|v| (v.nil? or v["SNPSandGO Score"].nil? or v["SNPSandGO Score"].empty?) ? 
+  #      nil : 
+  #      (v["SNPSandGO Prediction"] == "Disease" ? 1.0 - (10.0 - v["SNPSandGO Score"].to_f) / 20 : 0 + (10.0 - v["SNPSandGO Score"].to_f) / 20)
+  #    }
+  #  rescue
+  #    Log.warn $!.message
+  #    [nil] * self.length
+  #  end
+  #end
 
-  property :polyphen_scores => :array2single do
-    begin
-      missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
-      res = MutEval.job(:polyphen, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
-      res.chunked_values_at(self).collect{|v| (v.nil? or v["Polyphen Score"].nil? or v["Polyphen Score"].empty?) ? nil : v["Polyphen Score"].to_f / 10}
-    rescue
-      Log.warn $!.message
-      [nil] * self.length
-    end
-  end
+  #property :polyphen_scores => :array2single do
+  #  begin
+  #    missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
+  #    res = MutEval.job(:polyphen, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
+  #    res.chunked_values_at(self).collect{|v| (v.nil? or v["Polyphen Score"].nil? or v["Polyphen Score"].empty?) ? nil : v["Polyphen Score"].to_f / 10}
+  #  rescue
+  #    Log.warn $!.message
+  #    [nil] * self.length
+  #  end
+  #end
 
   property :dbNSFP => :array2single do |*args|
     method = args.first || "all"
     missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
-    MutEval.job(:dbNSFP, "MutatedIsoforms (#{self.length})", :method => method, :mutations => missense.sort, :organism => organism).run.chunked_values_at(self).collect{|v| (v.nil? or v.first.nil?) ? nil : v.first.to_f }.collect{|v| v == -999 ? nil : v}
+    DbNSFP.job(:annotate, "MutatedIsoforms (#{self.length})", :method => method, :mutations => missense.sort, :organism => organism).run.chunked_values_at(self).collect{|v| (v.nil? or v.first.nil?) ? nil : v.first.to_f }.collect{|v| v == -999 ? nil : v}
   end
 
   property :sift_scores => :array2single do
