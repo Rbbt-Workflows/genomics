@@ -72,7 +72,7 @@ module GenomicMutation
       else
         junctions.collect{|junction|
           exon, junction_type = junction.split(":")
-          transcripts = exon2transcript_index[exon]
+          transcripts = exon2transcript_index[exon].first
           transcripts.select do |transcript|
             transcript_info = transcript_exon_rank[transcript]
 

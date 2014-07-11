@@ -32,7 +32,7 @@ module GenomicMutation
   end
 
   property :mutated_isoforms => :array2single do
-    res = Sequence.job(:mutated_isoforms, jobname, :watson => watson, :organism => organism, :mutations => Annotated.purge(self)).run.chunked_values_at(self)
+    res = Sequence.job(:mutated_isoforms_fast, jobname, :watson => watson, :organism => organism, :mutations => Annotated.purge(self)).run.chunked_values_at(self)
     MutatedIsoform.setup(res, organism)
     res.extend AnnotatedArray
     res

@@ -13,7 +13,7 @@ module GenomicMutation
 
   def self.transcripts_for_exon_index(organism)
     @@transcript_for_exon_indices ||= {}
-    @@transcript_for_exon_indices[organism] ||= Organism.transcript_exons(organism).tsv :persist => true, :type => :flat, :key_field => "Ensembl Exon ID", :fields => ["Ensembl Transcript ID"], :unnamed => true
+    @@transcript_for_exon_indices[organism] ||= Organism.transcript_exons(organism).tsv :persist => true, :key_field => "Ensembl Exon ID", :fields => ["Ensembl Transcript ID"], :unnamed => true, :merge => true
   end
 
   def self.genomes_1000_index(organism)
