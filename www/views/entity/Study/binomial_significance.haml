@@ -12,4 +12,4 @@
 
 = action_card_render action_card do
   = table :page => "1~p.value" do
-    - study.job(:binomial_significance).run
+    - Sequence.job(:binomial_significance, study, :mutations => study.all_mutations).run
