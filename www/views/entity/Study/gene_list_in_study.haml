@@ -121,7 +121,7 @@
   - header "Damaged samples", "Link"
   - header "Binomial significance", "NumericValue"
   = table :page => "1~Binomial significance", :table_id => "Gene overview" do
-    - significance = study.job(:binomial_significance).run
+    - significance = Sequence.job(:binomial_significance, study, :mutations => study.cohort.metagenotype.sort).run
     - mutated_genes = significance.keys
     - gene2name = Misc.process_to_hash(list.subset(mutated_genes)){|l| l.name }
 
