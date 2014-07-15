@@ -19,7 +19,7 @@
   - genes = Gene.setup(Translation.job(:translate, list_id, :genes => list, :organism =>organism).run.compact, "Ensembl Gene ID", organism)
   
   -#{{{ GENOTYPE
-  - if study.has_genotypes? and study.all_mutations.length < 100_000
+  - if study.has_genotypes? #and study.all_mutations.length < 100_000
     %hr
     %h4 Genotype
 
