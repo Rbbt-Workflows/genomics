@@ -40,7 +40,8 @@
 
     - unif = (0..1000).to_a.collect{ rand }
     - scaled_positions = positions.collect{|p| p.to_f / protein_size }
-    - hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
+    -# hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
+    - hotspot_stat = R.eval "ks.test(#{R.ruby2R scaled_positions}, #{R.ruby2R unif})$p.value"
     - hotspot_stat = 0.0000001 if hotspot_stat < 0.0000001
     - g2h[gene] = hotspot_stat
     - g2r[gene] = positions.length.to_f / protein_size
