@@ -52,7 +52,7 @@
           No transcript found for this gene
 
   = fragment do 
-    - cosmic_mutations = entity.COSMIC_mutations.compact.select_by(:relevant?)
+    - cosmic_mutations = COSMIC.knowledge_base.parents('mutation_genes', entity).source_entity.select_by(:relevant?)
     - protein = entity.transcripts.protein.flatten.compact.sort_by{|p| (p.sequence ||[]).length}.last if entity.proteins and entity.proteins.any?
     - protein_mutations = Annotated.flatten(cosmic_mutations.mutated_isoforms.compact).select{|mi| mi.protein == protein} if cosmic_mutations
     - if protein and protein_mutations and protein_mutations.any?

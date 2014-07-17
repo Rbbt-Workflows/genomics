@@ -3,7 +3,7 @@ require 'rbbt/sources/InterPro'
 module MutatedIsoform
 
   property :affected_interpro_domains => :single do
-    if protein.nil?
+    if protein.nil? or position.nil?
       []
     else
       InterProDomain.setup(Misc.zip_fields(protein.interpro_domain_positions || []).select{|d,s,e|
