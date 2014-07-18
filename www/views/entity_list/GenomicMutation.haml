@@ -5,8 +5,9 @@
 - entity_list_card.description do
   %p== #{list.length} mutations.
 
-  = tool :figure, :plot => :pie, :data => Misc.counts(list.collect{|m| m.relevant? ? "Relevant" : "Not relevant"}), :title => "Mutation consequence", :float => true
-  = tool :figure, :plot => :pie, :data => Misc.counts(list.type), :title => "Mutation types", :float => true
+  = fragment do
+    = tool :figure, :plot => :pie, :data => Misc.counts(list.collect{|m| m.relevant? ? "Relevant" : "Not relevant"}), :title => "Mutation consequence", :float => true
+    = tool :figure, :plot => :pie, :data => Misc.counts(list.type), :title => "Mutation types", :float => true
 
   = fragment do
     %table
