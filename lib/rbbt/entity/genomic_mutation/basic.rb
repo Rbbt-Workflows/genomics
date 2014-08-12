@@ -25,6 +25,7 @@ module GenomicMutation
   end
 
   property :reference => :array2single do
+    organism = self.organism
     job = Sequence.job(:reference, jobname, :organism => organism, :positions => self.clean_annotations.sort)
     job.clean if job.error?
     tsv = job.run

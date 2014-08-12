@@ -95,7 +95,7 @@
 - list_container.add "GO CC Terms for #{entity.name || entity}", entity.go_cc_terms, "GO CC Terms"
 - list_container.add "GO MF Terms for #{entity.name || entity}", entity.go_mf_terms, "GO MF Terms"
 - list_container.add "Pfam Domains of #{entity.name || entity}", entity.pfam_domains , "Pfam Domains"
-- list_container.add "InterPro Domains of #{entity.name || entity}", InterProDomain.setup(entity.proteins.interpro_domains.compact.flatten, entity.organism), "InterPro Domains" if entity.proteins.any?
+-# list_container.add "InterPro Domains of #{entity.name || entity}", InterProDomain.setup(entity.proteins.interpro_domains.compact.flatten, entity.organism), "InterPro Domains" if entity.proteins.any?
 
 - entity_card.list_container = list_container
 

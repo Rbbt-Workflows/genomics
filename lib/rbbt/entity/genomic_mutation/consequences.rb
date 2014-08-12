@@ -138,9 +138,10 @@ module GenomicMutation
           ds2 = damage_scores[mi2] || 0
           case
           when (damaged.include?(mi1) == damaged.include?(mi2))
-            d1 = mi1.protein.interpro_domains || []
-            d2 = mi2.protein.interpro_domains || []
-            d1.length <=> d2.length
+            0
+            #d1 = mi1.protein.interpro_domains || []
+            #d2 = mi2.protein.interpro_domains || []
+            #d1.length <=> d2.length
           else
             ds1 <=> ds2
           end

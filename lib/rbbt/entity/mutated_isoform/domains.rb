@@ -1,3 +1,4 @@
+require 'rbbt/entity/protein'
 require 'rbbt/sources/InterPro'
 
 module MutatedIsoform

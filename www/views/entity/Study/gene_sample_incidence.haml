@@ -1,11 +1,12 @@
 - study = entity
 
 - log :recurrent_genes
-- recurrent_genes = study.recurrent_genes
+- recurrent_genes = study.get_genes :recurrent
 - samples = study.samples
 
 - log :matches
-- matches = study.knowledge_base.subset('sample_genes', "Gene" => recurrent_genes, "Sample" => samples)
+- iii study.knowledge_base
+- matches = study.knowledge_base.subset('mutated_genes', "Gene" => recurrent_genes, "Sample" => samples)
 
 - log :incidence
 - matrix = AssociationItem.incidence matches

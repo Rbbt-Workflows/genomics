@@ -7,16 +7,9 @@
     - list_container = ListContainer.new
     - if sample.has_genotype?
       - list_container.add "All mutations in #{ entity }", sample.mutations, "Mutations" 
-      - list_container.add "Affected genes in #{ entity }", sample.affected_genes, "Affected genes"
-
-    - if sample.has_cnv?
-      - list_container.add  "CNV regions in #{ entity }",  sample.cnvs, "CNV regions"
-      - list_container.add  "Genes gained in #{ entity }",  sample.gained_genes, "Gained genes"
-      - list_container.add "Genes lost in #{ entity }", sample.lost_genes, "Lost genes" 
-
-    - if sample.has_methylation?
-      - list_container.add  "Genes methylated in #{ entity }",  sample.methylated_genes, "Methylated genes"
-      - list_container.add "Genes unmethylated in #{ entity }", sample.unmethylated_genes, "Unmethylated genes" 
+      - list_container.add "Altered genes in #{ entity }", sample.get_genes(:altered), "Altered genes"
+      - list_container.add "Damaged genes in #{ entity }", sample.get_genes(:damaged), "Damaged genes"
+      - list_container.add "Broken genes in #{ entity }", sample.get_genes(:broken), "Broken genes"
 
     = partial_render('entity_partials/list_container', :container =>  list_container)
  

@@ -18,7 +18,7 @@
     - tsv = TSV.setup({}, :key_field => "Study", :fields => ["Number of samples", "Average mutation count", "Samples with gene mutated", "Samples with gene affected", "Samples with gene damaged", "p-value"], :type => :double)
 
     - studies.each do |study|
-      - mutation_count = study.all_mutations.length
+      - mutation_count = study.metagenotype.length
       - next if mutation_count > 100_000
       - genotyped_samples = study.samples.select_by(:has_genotype?)
       - next if genotyped_samples.empty?
@@ -50,7 +50,7 @@
       - else
         - row << "None"
 
-      - significance = Sequence.job(:binomial_significance, study, :mutations => study.cohort.metagenotype, :threshold => 0.1).run
+      - significance = Sequence.job(:binomial_significance, study, :mutations => study.metagenotype, :threshold => 0.1).run
       - row << (significance[gene] ? significance[gene]["p.value"].to_f : 1)
 
       - tsv[study] = row

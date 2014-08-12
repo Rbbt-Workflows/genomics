@@ -12,12 +12,12 @@
     This procedures makes the assumption that all amino-acids are equally likely to be mutated.
 
 = action_card_render action_card do
-  - genes = entity.recurrent_genes
+  - genes = entity.get_genes :recurrent
   - organism = genes.organism
   - tsv = TSV.setup(genes, :key_field => "Ensembl Gene ID", :fields => [], :type => :list)
   - g2h = {}
   - g2r = {}
-  - g2c = Misc.counts(entity.all_mutations.affected_genes.compact.flatten)
+  - g2c = Misc.counts(entity.get_genes(:affected))
 
   - protein_sequence = Organism.protein_sequence(organism).tsv :persist => true, :type => :single
   - genes.each do |gene|
