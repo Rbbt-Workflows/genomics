@@ -28,7 +28,7 @@ module Gene
       genes = genes.clean_annotations
     end
 
-    organism ||= "Hsa"
+    organism ||= "Hsa/feb2014"
 
     @@gene_start_end ||= {}
     gene_start_end = @@gene_start_end[organism] ||= Organism.gene_positions(organism).tsv(:persist => true, :key_field => "Ensembl Gene ID", :fields => ["Gene Start", "Gene End"], :type => :list, :cast => :to_i, :unmamed => true)
@@ -43,7 +43,7 @@ module Gene
       genes = genes.clean_annotations
     end
 
-    organism ||= "Hsa"
+    organism ||= "Hsa/feb2014"
 
     @@gene_exons_tsv ||= {}
     gene_exons = @@gene_exons_tsv[organism] ||= Organism.exons(organism).tsv(:persist => true, :key_field => "Ensembl Gene ID", :fields => ["Ensembl Exon ID"], :type => :flat, :merge => true, :unnamed => true)

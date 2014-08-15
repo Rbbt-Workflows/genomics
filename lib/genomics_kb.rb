@@ -14,9 +14,11 @@ require 'rbbt/sources/kegg'
 require 'rbbt/sources/go'
 require 'rbbt/sources/reactome'
 require 'rbbt/sources/NCI'
-require 'rbbt/sources/InterPro'
 require 'rbbt/sources/matador'
 require 'rbbt/sources/tfacts'
+
+Workflow.require_workflow "InterPro"
+require 'rbbt/sources/InterPro'
 
 module Genomics
   class << self

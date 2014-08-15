@@ -9,7 +9,7 @@ module Gene
   self.annotation :format
   self.annotation :organism
 
-  self.format = Organism.identifiers("Hsa").all_fields - ["Ensembl Protein ID", "Ensembl Transcript ID"]
+  self.format = Organism.identifiers("Hsa/feb2014").all_fields - ["Ensembl Protein ID", "Ensembl Transcript ID"]
 end
 
 require 'rbbt/entity/gene/indices'
