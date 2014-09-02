@@ -51,33 +51,37 @@
         - else
           No transcript found for this gene
 
-  = fragment do 
-    - cosmic_mutations = COSMIC.knowledge_base.parents('mutation_genes', entity).source_entity.select_by(:relevant?)
+  -#= fragment do 
+    - cosmic_mutations = COSMIC.knowledge_base.subset('mutation_genes', :target => [entity], :source => :all).target_entity
+    - iif cosmic_mutations
+    - cosmic_mutations.select_by(:relevant?)
     - protein = entity.transcripts.protein.flatten.compact.sort_by{|p| (p.sequence ||[]).length}.last if entity.proteins and entity.proteins.any?
     - protein_mutations = Annotated.flatten(cosmic_mutations.mutated_isoforms.compact).select{|mi| mi.protein == protein} if cosmic_mutations
+    - iii [protein, protein_mutations]
     - if protein and protein_mutations and protein_mutations.any?
-      - positions = protein_mutations.position.sort.sort 
-      - distances = positions[1..-1].zip(positions).collect{|p1,p2| p1 - p2}
-      - mean_mut_distance = Misc.mean distances
       - protein_size = protein.sequence.length
-      - hotspot = distances.inject(0){|acc,e|  acc += 1 if e == 0; acc}.to_f / distances.length
-      - unif = (0..1000).to_a.collect{ rand }
-      - scaled_positions = positions.collect{|p| p.to_f / protein_size}
-      -# hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
       %dl
         %dt COSMIC Mutations
         %dd 
           = cosmic_mutations.list_link :length, "COSMIC mutations (relevant) over #{entity.name || entity}"
 
         %dt Mutations / Protein size
-        %dd 
-          = "%.3g" % (cosmic_mutations.length.to_f / protein_size)
+        %dd= "%.3g" % (cosmic_mutations.length.to_f / protein_size)
 
         %dt Recurrence %
         %dd== #{"%.3g" % (hotspot * 100)} %
-
+      -#
         %dt Hotspot statistic
-        %dd= "%.5g" % hotspot_stat
+        %dd
+          - positions = protein_mutations.position.sort.sort 
+          - distances = positions[1..-1].zip(positions).collect{|p1,p2| p1 - p2}
+          - mean_mut_distance = Misc.mean distances
+          - protein_size = protein.sequence.length
+          - hotspot = distances.inject(0){|acc,e|  acc += 1 if e == 0; acc}.to_f / distances.length
+          - unif = (0..1000).to_a.collect{ rand }
+          - scaled_positions = positions.collect{|p| p.to_f / protein_size}
+          -# hotspot_stat = RSRuby.instance.ks_test(scaled_positions, unif)["p.value"]
+          = "%.5g" % hotspot_stat
 
 
 - list_container = ListContainer.new

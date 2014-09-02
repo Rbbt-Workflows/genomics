@@ -1,4 +1,4 @@
-Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
+Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf *.check" {
  workflow.rb
  lib=lib {
   rbbt=rbbt{
@@ -71,8 +71,6 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     CNV.haml
     ChromosomeRange.haml
     ChromosomeRange=ChromosomeRange{
-     chromosome_range_in_study.haml
-     chromosome_range_in_study.check
     }
     Default.haml
     Gene.haml
@@ -83,26 +81,7 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     Protein.haml
     SNP.haml
     Sample.haml
-    Study.haml
     Gene=Gene{
-     gene_in_study.haml
-     known_mutations.haml
-     study_overview.haml
-    }
-    Study=Study{
-     binomial_significance.haml
-     chromosome_range_in_study.haml
-     chromosome_range_in_study.check
-     gene_in_study.haml
-     gene_list_expression.haml
-     gene_list_expression.check
-     gene_list_in_study.haml
-     sample_details.haml
-     snp_in_study.haml
-     snp_in_study.check
-     tables.haml
-     gene_plot.haml
-     gene_sample_incidence.haml
     }
    }
    entity_list=entity_list{
@@ -115,12 +94,6 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     }
     Gene=Gene{
      details.haml
-     gene_list_in_study.haml
-     study_overview.haml
-     study_overview_old.haml
-     study_overview_old.check
-     expression_overview.haml
-     expression_in_study.haml
     }
     GenomicMutation=GenomicMutation{
      mutation_details.haml

@@ -41,13 +41,8 @@ Genomics.knowledge_base.register 'nature'   , NCI.nature_pathways              ,
 Genomics.knowledge_base.register 'biocarta' , NCI.biocarta_pathways            , :merge => true , :target => "Entrez Gene ID" , :key_field => 0
 #Genomics.knowledge_base.register 'reactome' , NCI.reactome_pathways            , :merge => true , :target => 2 , :key_field => 0
 
-Genomics.knowledge_base.register 'tfacts_targets'   , TFacts.targets            ,:type => :flat,
-  :target => "Transcription Factor Associated Gene Name=~Associated Gene Name"
-
-Genomics.knowledge_base.register 'tfacts_regulators'   , TFacts.regulators     , :type => :flat, 
-  :target => "Associated Gene Name" , 
-  :source => "Transcription Factor Associated Gene Name=~Associated Gene Name" 
-
+Genomics.knowledge_base.register 'tfacts'   , TFacts.regulators            ,:type => :flat,
+  :source => "Transcription Factor Associated Gene Name=~Associated Gene Name", :merge => true
 
 Genomics.knowledge_base.register "pina", Pina.protein_protein, 
   :undirected => true, 
