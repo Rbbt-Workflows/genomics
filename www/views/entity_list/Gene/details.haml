@@ -11,7 +11,7 @@
     - list.ensembl.compact.each do |gene|
       - next if gene.nil? or gene.chr_range.nil?
       
-      - protein_size = gene.proteins.collect{|p| p.sequence.length }.sort.last
+      - protein_size = gene.proteins.select{|p| p.sequence}.collect{|p| p.sequence.length }.sort.last
 
       - tsv[gene] = [gene.biotype, gene.chromosome, gene.chr_range.begin, gene.chr_range.end, gene.strand, gene.chr_range.end - gene.chr_range.begin, protein_size]
     - tsv

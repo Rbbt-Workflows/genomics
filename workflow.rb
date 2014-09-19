@@ -6,7 +6,7 @@ require 'rbbt/sources/organism'
 require 'rbbt/entity/gene'
 require 'rbbt/entity/genomic_mutation'
 
-require 'genomics_kb'
+require 'rbbt/knowledge_base/Genomics'
 
 module Genomics
   extend Workflow

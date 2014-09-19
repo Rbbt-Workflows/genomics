@@ -56,6 +56,9 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     pmid.rb
     snp.rb
    }
+   knowledge_base=knowledge_base{
+    Genomics.rb
+   }
   }
   genomics_kb.rb
  }
