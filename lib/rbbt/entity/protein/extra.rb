@@ -14,7 +14,11 @@ module Protein
 
   property :marked_svg => :single2array do |*args|
     positions = args.first
-    svg = Open.read(ensembl_protein_image_url)
+    begin
+      svg = Open.read(ensembl_protein_image_url)
+    rescue Exception
+      raise RemoteServerError, "The Ensembl server seems to be down for maintenance. Could not retrieve: #{ensembl_protein_image_url}"
+    end
     
     seq_len = sequence_length
 

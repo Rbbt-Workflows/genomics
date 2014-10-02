@@ -13,10 +13,14 @@ module Genomics
 
   input :tsv, :tsv, "TSV file to name", nil, :stream => true
   input :field, :string, "Field name for lists", nil
-  task :names => :tsv do |tsv,field|
+  desc <<-EOF
+Takes a TSV files and, guided by the column headers, changes identifiers of different entities to
+their human-friendly names.
+  EOF
+  def self.names(tsv, field = nil)
     tsv = TSV::Parser.new tsv if IO === tsv
 
-    named = TSV::Dumper.new tsv.options, path
+    named = TSV::Dumper.new tsv.options, tsv.filename
     named.init
 
     if (tsv.fields.nil? or tsv.fields.empty?) and field
@@ -101,7 +105,8 @@ module Genomics
           end
         end
       end
-    end
+    end.stream
   end
+  task :names => :tsv 
   export_synchronous :names
 end

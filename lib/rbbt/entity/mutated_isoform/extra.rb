@@ -14,7 +14,11 @@ module MutatedIsoform
   end
 
   property :marked_svg => :single2array do
-    svg = Open.read(protein.ensembl_protein_image_url)
+    begin
+      svg = Open.read(protein.ensembl_protein_image_url)
+    rescue Exception
+      raise RemoteServerError, "The Ensembl server seems to be down for maintenance. Could not retrieve: #{protein.ensembl_protein_image_url}"
+    end
     
     seq_len = protein.sequence_length
     position = self.position
