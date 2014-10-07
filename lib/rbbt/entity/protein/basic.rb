@@ -48,6 +48,7 @@ module Protein
   end
 
   property :sequence => :array2single do
+    organism = self.organism
     Protein.ensp2sequence(organism, self.ensembl)
   end
 
