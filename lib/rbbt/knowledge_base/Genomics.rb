@@ -39,11 +39,12 @@ Genomics.knowledge_base.register 'nature'   , NCI.nature_pathways              ,
 Genomics.knowledge_base.register 'biocarta' , NCI.biocarta_pathways            , :merge => true , :target => "Entrez Gene ID" , :key_field => 0
 #Genomics.knowledge_base.register 'reactome' , NCI.reactome_pathways            , :merge => true , :target => 2 , :key_field => 0
 
-Genomics.knowledge_base.register 'tfacts'   , TFacts.regulators            ,:type => :flat,
+Genomics.knowledge_base.register 'tfacts'   , TFacts.regulators        ,:type => :flat,
   :source => "Transcription Factor Associated Gene Name=~Associated Gene Name", :merge => true
 
 Genomics.knowledge_base.register "pina", Pina.protein_protein, 
   :undirected => true, 
+  :source => "UniProt/SwissProt Accession",
   :target => "Interactor UniProt/SwissProt Accession=~UniProt/SwissProt Accession"
 
 Genomics.knowledge_base.register 'matador' do    

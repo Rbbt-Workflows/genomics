@@ -14,6 +14,7 @@ end
 
 require 'rbbt/entity/gene/indices'
 require 'rbbt/entity/gene/basic'
+require 'rbbt/entity/gene/identifiers'
 require 'rbbt/entity/gene/extra'
 require 'rbbt/entity/gene/drugs'
 require 'rbbt/entity/gene/literature'

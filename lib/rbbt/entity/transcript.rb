@@ -6,7 +6,7 @@ module Transcript
   self.annotation :format
   self.annotation :organism
 
-  self.format = "Ensembl Transcript ID"
+  add_identifiers Organism.probe_transcripts("NAMESPACE"), "Ensembl Transcript ID"
 
   def self.enst2ensg(organism, transcript)
     @@enst2ensg ||= {}
@@ -44,20 +44,6 @@ module Transcript
             @@enst2ense[organism][transcript]
           end
     res
-  end
-
-
-
-  property :to! => :array2single do |new_format|
-    return self if format == new_format
-    res = Translation.job(:tsv_translate_probe, "", :organism => organism, :probes => self, :format => new_format).exec.chunked_values_at(self)
-    Gene.setup(res, "Ensembl Gene ID", organism) if defined? Gene
-    res
-  end
-
-  property :to => :array2single do |new_format|
-    return self if format == new_format
-    to!(new_format).collect!{|v| v.nil? ? nil : v.first}
   end
 
   property :exons => :array2single do 

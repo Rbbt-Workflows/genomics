@@ -68,44 +68,44 @@ module Gene
     @@sequence_tsv[organism].chunked_values_at self.ensembl
   end
 
-  property :to => :array2single do |new_format|
-    return self if format == new_format
-    if format.nil?
-      genes = Translation.job(:tsv_translate, "", :organism => organism, :genes => self, :format => new_format).exec.chunked_values_at(self)
-    else
-      genes = Translation.job(:tsv_translate_from, "", :organism => organism, :genes => self, :source_format => format, :target_format => new_format).exec.chunked_values_at(self)
-    end
-    Gene.setup(genes, new_format, organism)
-    genes.extend AnnotatedArray if AnnotatedArray === self
-    genes
-  end
+  #property :to => :array2single do |new_format|
+  #  return self if format == new_format
+  #  if format.nil?
+  #    genes = Translation.job(:tsv_translate, "", :organism => organism, :genes => self, :format => new_format).exec.chunked_values_at(self)
+  #  else
+  #    genes = Translation.job(:tsv_translate_from, "", :organism => organism, :genes => self, :source_format => format, :target_format => new_format).exec.chunked_values_at(self)
+  #  end
+  #  Gene.setup(genes, new_format, organism)
+  #  genes.extend AnnotatedArray if AnnotatedArray === self
+  #  genes
+  #end
 
-  property :ensembl => :array2single do
-    to "Ensembl Gene ID"
-  end
+  #property :ensembl => :array2single do
+  #  to "Ensembl Gene ID"
+  #end
 
-  property :entrez => :array2single do
-    to "Entrez Gene ID"
-  end
+  #property :entrez => :array2single do
+  #  to "Entrez Gene ID"
+  #end
 
-  property :uniprot => :array2single do
-    to "UniProt/SwissProt Accession"
-  end
+  #property :uniprot => :array2single do
+  #  to "UniProt/SwissProt Accession"
+  #end
 
-  property :name => :array2single do
-    return self if self.format == "Associated Gene Name"
-    to "Associated Gene Name"
-  end
+  #property :name => :array2single do
+  #  return self if self.format == "Associated Gene Name"
+  #  to "Associated Gene Name"
+  #end
 
-  property :long_name => :array2single do
-    entre = self.entrez
-    gene = Entrez.get_gene(entrez).chunked_values_at(entrez).collect{|gene| gene.nil? ? nil : (gene.description || []).flatten.first}
-  end
+  #property :long_name => :array2single do
+  #  entre = self.entrez
+  #  gene = Entrez.get_gene(entrez).chunked_values_at(entrez).collect{|gene| gene.nil? ? nil : (gene.description || []).flatten.first}
+  #end
 
-  property :description => :single2array do
-    gene = Entrez.get_gene(to("Entrez Gene ID"))
-    gene.nil? ? nil : (gene.summary || [nil]).flatten.first
-  end
+  #property :description => :single2array do
+  #  gene = Entrez.get_gene(to("Entrez Gene ID"))
+  #  gene.nil? ? nil : (gene.summary || [nil]).flatten.first
+  #end
 
   property :max_transcript_length => :array2single do
     transcripts.collect{|list| list.sequence_length.compact.max}

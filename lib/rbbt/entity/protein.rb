@@ -13,7 +13,7 @@ module Protein
   self.annotation :format
   self.annotation :organism
 
-  self.format = "Ensembl Protein ID"
+  add_identifiers Organism.protein_identifiers("NAMESPACE"), "Ensembl Protein ID"
 
 end
 

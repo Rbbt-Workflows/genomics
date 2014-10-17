@@ -8,6 +8,7 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
      indices.rb
 
      basic.rb
+     identifiers.rb
      extra.rb
      drugs.rb
      literature.rb
