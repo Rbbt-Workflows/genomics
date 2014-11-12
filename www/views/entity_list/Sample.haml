@@ -9,7 +9,7 @@
 
     = fragment do
       = table :table_id => "Clinical features of #{ list_id }" do
-        - sample_info.select(:key => list).tap{|t| t.entity_options = {:study => list.study}}
+        - sample_info.select{|k,v| list.collect{|e| e.index(k) == 0}.any?}.tap{|t| t.entity_options = {:study => list.study}} 
 
 
     -#

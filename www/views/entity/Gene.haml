@@ -2,8 +2,7 @@
 - start = Time.now
 
 - class << Misc; def self.fingerprint(obj); puts caller; ddd obj; super(obj); end; end
-- entity_card.description do
-  %p= entity.description
+- entity_card.description = entity.description
 
 - entity_card.long_name do
   = entity.long_name
