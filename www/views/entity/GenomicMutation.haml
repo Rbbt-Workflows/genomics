@@ -7,6 +7,7 @@
   - synonymous = mutated_isoforms.select{|mi| mi.synonymous}
   - non_synonymous = mutated_isoforms.select{|mi| mi.non_synonymous}
   - damaging = mutated_isoforms.select{|mi| mi.damaged?}
+  - transcripts_with_affected_splicing = entity.transcripts_with_affected_splicing
 
   %dl.indented
 
@@ -37,6 +38,13 @@
         %ul.clean
           - utr.each do |mi|
             %li= mi.link
+
+    - if transcripts_with_affected_splicing.any?
+      %dt Transcripts with affected splicing 
+      %dd
+        %ul.clean
+          - transcripts_with_affected_splicing.each do |t|
+            %li= t
 
 
 - entity_card.meta do

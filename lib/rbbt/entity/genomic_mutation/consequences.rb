@@ -104,7 +104,6 @@ module GenomicMutation
   end
 
   property :damaging? => :array2single do |*args|
-
     all_mutated_isoforms = mutated_isoforms.compact.flatten
     damaged_mutated_isoforms = all_mutated_isoforms.any? ? all_mutated_isoforms.select_by(:damaged?, *args) : []
     transcripts_with_affected_splicing.zip(mutated_isoforms, self.type).collect do |exs, mis, type|
