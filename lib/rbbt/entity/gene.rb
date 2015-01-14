@@ -1,4 +1,5 @@
 require 'rbbt/entity'
+require 'rbbt/entity/identifiers'
 require 'rbbt/workflow'
 
 Workflow.require_workflow "Translation"
@@ -9,7 +10,7 @@ module Gene
   self.annotation :format
   self.annotation :organism
 
-  self.format = Organism.identifiers("Hsa/feb2014").all_fields - ["Ensembl Protein ID", "Ensembl Transcript ID"]
+  self.add_identifiers Organism.identifiers("NAMESPACE"), "Ensembl Gene ID", "Associated Gene Name"
 end
 
 require 'rbbt/entity/gene/indices'

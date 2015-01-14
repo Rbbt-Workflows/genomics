@@ -1,8 +1,7 @@
 require 'rbbt/entity'
+require 'rbbt/entity/identifiers'
 require 'rbbt/workflow'
 require 'rbbt/sources/organism'
-#require 'rbbt/statistics/hypergeometric'
-#require 'rbbt/network/paths'
 require 'rbbt/entity/gene'
 
 Workflow.require_workflow "Translation"
@@ -13,9 +12,10 @@ module Protein
   self.annotation :format
   self.annotation :organism
 
-  add_identifiers Organism.protein_identifiers("NAMESPACE"), "Ensembl Protein ID"
-
+  self.add_identifiers Organism.protein_identifiers("NAMESPACE"), "Ensembl Protein ID"
 end
+
+Entity.formats["Ensembl Protein ID"] = Protein
 
 require 'rbbt/entity/protein/indices'
 require 'rbbt/entity/protein/basic'
