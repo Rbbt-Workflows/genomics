@@ -40,7 +40,7 @@ Genomics.knowledge_base.register 'biocarta' , NCI.biocarta_pathways            ,
 #Genomics.knowledge_base.register 'reactome' , NCI.reactome_pathways            , :merge => true , :target => 2 , :key_field => 0
 
 Genomics.knowledge_base.register 'tfacts'   , TFacts.regulators        ,:type => :flat,
-  :source => "Transcription Factor Associated Gene Name=~Associated Gene Name", :merge => true
+  :source => "Transcription Factor Associated Gene Name=~Associated Gene Name", :merge => true, :undirected => false
 
 Genomics.knowledge_base.register "pina", Pina.protein_protein, 
   :undirected => true, 

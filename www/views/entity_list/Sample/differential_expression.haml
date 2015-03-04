@@ -34,6 +34,10 @@
 
   - threshold = threshold.to_f
 
+  
+  =table :caption => "Negative values are used to mark downregulation" do
+    - diffs.tsv :namespace => study.organism
+-#
   - entities = nil
   = table :table_id => "Overexpressed (#{type}) in #{list_id}", :page => "1~p.values" do
     - tsv = Expression.top_up(diffs, threshold)

@@ -88,24 +88,24 @@
 
 
 - list_container = ListContainer.new
+- text = entity.name || entity
 
-- list_container.add "GeneRIF Articles" do 
+- list_container.add "GeneRIF Articles for #{text}" do 
   - entity.articles
 
 - kb = user_kb(user)
-- text = entity.name || entity
 - TSV.traverse kb.registry, :bar => true do |database,info|
   - _entity = kb.identify database, entity
   - children = kb.children(database, _entity).target_entity
   - if not children.nil? and not children.empty? and children.respond_to? :base_type
-    - list_container.add "#{database} #{text} -> #{children.base_type}", children
+    - list_container.add "#{database} -- #{text} ->  #{children.base_type}", children
 
   - next if kb.undirected database
 
   - kb.get_index(database)
   - parents = kb.parents(database, _entity).target_entity
   - if not parents.nil? and not parents.empty? and parents.respond_to? :base_type
-    - list_container.add "#{database} #{text} <- #{parents.base_type}", parents
+    - list_container.add "#{database} --  #{text} ->  #{parents.base_type}", parents
 
 - entity_card.list_container = list_container
 

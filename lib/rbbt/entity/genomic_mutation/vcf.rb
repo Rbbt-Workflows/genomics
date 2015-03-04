@@ -1,3 +1,4 @@
+# DEPRECATED, see Sequence workflow
 module GenomicMutation
   module VCF
     def self.header_lines(vcf)
@@ -67,6 +68,7 @@ module GenomicMutation
 
       info_fields = header["INFO"].keys if header.include? "INFO"
       format_fields = header["FORMAT"].keys if header.include? "FORMAT"
+      format_fields ||= line.split("\t")[6].split(":")
 
       info_pos = fields.index("INFO")
       format_pos = fields.index("FORMAT")

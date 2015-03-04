@@ -80,11 +80,26 @@ module MutatedIsoform
   end
 
   property :dbNSFP_field => :array2single do |field|
-    dbNSFP.slice(field).chunked_values_at(self).collect{|list| v = list ? list.first : nil;  (v.nil? or v == -999 or v == "-999") ? nil : v.to_f }
+    if dbNSFP.size == 0
+      [nil] * self.length
+    else
+      begin
+        [nil] * self.length
+        dbNSFP.slice(field).chunked_values_at(self).collect{|list| v = list ? list.first : nil;  (v.nil? or v == -999 or v == "-999") ? nil : v.to_f }
+      rescue
+        Log.warn "Error getting dbNSFP field #{field}"
+        [nil] * self.length
+      end
+    end
   end
 
   property :dbnsfp_radialSVM_score => :array2single do |*args|
     field = "RadialSVM_score"
+    dbNSFP_field(field)
+  end
+
+  property :dbnsfp_MetaSVM_score => :array2single do |*args|
+    field = "MetaSVM_score"
     dbNSFP_field(field)
   end
 

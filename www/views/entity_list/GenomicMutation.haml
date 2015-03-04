@@ -10,36 +10,36 @@
     = tool :figure, :plot => :pie, :data => Misc.counts(list.type), :title => "Mutation types", :float => true
 
   = fragment do
-    %table
+    %table.ui.table.collapsing
       %caption Mutation types
       %tbody
 
         %tr
-          %th Transitions
+          %td Transitions
           %td= list.select_by(:type){|t| t == 'transition'}.list_link :length, "Transitions in #{ list_id }"
  
         %tr
-          %th Transversions
+          %td Transversions
           %td= list.select_by(:type){|t| t == 'transversion'}.list_link :length, "Transversions in #{ list_id }"
   
         %tr
-          %th Indels
+          %td Indels
           %td= list.select_by(:type){|t| t == 'indel'}.list_link :length, "Indels in #{ list_id }"
    
         %tr
-          %th Not mutations
+          %td Not mutations
           %td= list.select_by(:type){|t| t == 'none'}.list_link :length, "Not really mutations in #{ list_id }"
     
         %tr
-          %th Unknown
+          %td Unknown
           %td= list.select_by(:type){|t| t == 'unknown'}.list_link :length, "Unknown mutations in #{ list_id }"
 
         %tr
-          %th Multiple
+          %td Multiple
           %td= list.select_by(:type){|t| t == 'multiple'}.list_link :length, "Mutations with multiple variant alleles in #{ list_id }"
 
         %tr
-          %th Damaging
+          %td Damaging
           %td= list.select_by(:damaging?).list_link :length, "Damaging mutations in #{ list_id }"
 
 

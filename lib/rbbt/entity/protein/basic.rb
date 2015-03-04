@@ -17,6 +17,7 @@ module Protein
   end
 
   property :to => :array2single do |new_format|
+    new_format = "Ensembl Protein ID" if new_format == :default or new_format == :ensembl
     return self if format == new_format
     Protein.setup(Translation.job(:tsv_translate_protein, "", :organism => organism, :proteins => self, :format => new_format).exec.chunked_values_at(self), new_format, organism)
   end

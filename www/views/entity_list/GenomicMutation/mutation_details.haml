@@ -1,4 +1,7 @@
 
+- Workflow.require_workflow "Genomes1000"
+- require 'rbbt/sources/genomes1000/entity'
+
 = action_card_render ActionCard.new do
   - organism = list.organism
   - watson = list.watson
@@ -23,20 +26,21 @@
   - table_options = nil
 
   - tsv = TSV.setup({}, :key_field => "Genomic Mutation", :fields => ["Ref.", "SNP", "Genes", "Worst Consequence", "Type", "Relevant?", "Consequences"], :type => :double, :namespace => organism, :entity_options => {:watson => watson})
-  - log :mutations, "Processin mutation info"
+  - log :mutations, "Processing mutation info"
+  - rsindex = Genomes1000.job(:identify, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).run
 
   - list.each do |mutation|
     - mis = mutated_isoforms[mutation]
     - values = []
     - values << (watson ? mutation.reference : mutation.gene_strand_reference)
-    - values << #mutation.genomes_1000
+    - values << rsindex[mutation.split(":")[0..2] * ":"]
     - values << mutation.genes
     - values << mutation.worst_consequence
     - values << mutation.type
     - values << mutation.relevant?
     - values << ((mis.nil? or mis.empty? ) ? "" : mis.consequence.uniq.sort * ", ")
     - tsv[mutation] = values
-    -# [mutation, values]
+
   - tsv.entity_options = {:watson => watson, :organism => organism}
   - tsv
 
