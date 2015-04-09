@@ -36,7 +36,7 @@ module GenomicMutation
   def self.dbSNP_index(organism)
     build = Organism.hg_build(organism)
     @@dbSNP_index ||= {}
-    @@dbSNP_index[build] ||= DbSNP[build == "hg19" ? "mutations" : "mutations_hg18"].tsv :key_field => "Genomic Mutation", :unnamed => true,  :type => :single, :persist => true, :unnamed => true
+    @@dbSNP_index[build] ||= DbSNP[build == "hg19" ? "mutations" : "mutations_hg18"].tsv :key_field => "Genomic Mutation", :unnamed => true,  :type => :single, :persist => true
   end
 
   def self.dbSNP_position_index(organism)
@@ -46,6 +46,6 @@ module GenomicMutation
 
     @@dbSNP_position_index[build] ||= TSV.open(
       CMD::cmd('sed "s/\([[:alnum:]]\+\):\([[:digit:]]\+\):\([ACTG+-]\+\)/\1:\2/" ', :in => DbSNP[build == "hg19" ? "mutations" : "mutations_hg18"].open, :pipe => true), 
-      :key_field => "Genomic Mutation", :unnamed => true,  :type => :single, :persist => true, :unnamed => true)
+      :key_field => "Genomic Mutation", :unnamed => true,  :type => :single, :persist => true)
   end
 end
