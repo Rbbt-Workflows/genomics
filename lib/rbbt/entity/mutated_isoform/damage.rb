@@ -104,7 +104,7 @@ module MutatedIsoform
   end
 
   property :damaged? => :array2single do 
-    truncated.zip(dbnsfp_radialSVM_score.collect{|v| v and v > 0 }).collect{|t,d| t or d}
+    truncated.zip(dbnsfp_MetaSVM_score.collect{|v| v and v > 0 }).collect{|t,d| t or d}
   end
 
   property :sift_scores => :array2single do
