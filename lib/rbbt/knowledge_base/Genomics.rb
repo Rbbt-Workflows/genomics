@@ -28,7 +28,7 @@ Genomics.knowledge_base = KnowledgeBase.new Rbbt.var.knowledge_base.genomics, "H
 Genomics.knowledge_base.format["Gene"] = "Ensembl Gene ID"
 
 Genomics.knowledge_base.register 'kegg'     , KEGG.gene_pathway
-Genomics.knowledge_base.register 'go'       , Organism.gene_go('NAMESPACE'), :merge => true
+#Genomics.knowledge_base.register 'go'       , Organism.gene_go('NAMESPACE'), :merge => true
 Genomics.knowledge_base.register 'go_bp'    , Organism.gene_go_bp('NAMESPACE')
 Genomics.knowledge_base.register 'go_mf'    , Organism.gene_go_mf('NAMESPACE')
 Genomics.knowledge_base.register 'go_cc'    , Organism.gene_go_cc('NAMESPACE')
@@ -55,3 +55,16 @@ Genomics.knowledge_base.register 'matador' do
 end
 
 Genomics.knowledge_base.register 'gene_ages', Rbbt.share.gene_ages.find(:lib), :merge => true, :type => :double
+
+begin
+  begin
+    Workflow.require_workflow "PanCancer"
+  rescue
+  end
+
+  require 'rbbt/knowledge_base/pancancer'
+  Genomics.knowledge_base.syndicate nil, PanCancer.knowledge_base
+rescue Exception
+  Log.exception $!
+end
+
