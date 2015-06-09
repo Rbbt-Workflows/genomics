@@ -14,6 +14,7 @@ require 'rbbt/sources/reactome'
 require 'rbbt/sources/NCI'
 require 'rbbt/sources/matador'
 require 'rbbt/sources/tfacts'
+require 'rbbt/sources/corum'
 
 Workflow.require_workflow "InterPro"
 require 'rbbt/sources/InterPro'
@@ -56,8 +57,13 @@ end
 
 Genomics.knowledge_base.register 'gene_ages', Rbbt.share.gene_ages.find(:lib), :merge => true, :type => :double
 
+Genomics.knowledge_base.register "corum", CORUM.complexes, 
+  :source => "CORUM Complex ID",
+  :target => "UniProt/SwissProt Accession"
+
 begin
   begin
+    Workflow.require_workflow "Sample"
     Workflow.require_workflow "PanCancer"
   rescue
   end
