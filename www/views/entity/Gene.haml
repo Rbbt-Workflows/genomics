@@ -20,7 +20,11 @@
         %a(href="http://www.ncbi.nlm.nih.gov/gene/#{entity.to "Entrez Gene ID"}")= entity.to "Entrez Gene ID"
 
   = fragment :details do 
+    - gene_biotype = Organism.gene_biotype(entity.organism).tsv :persist => true
     %dl
+
+      %dt Biotype
+      %dd= gene_biotype[entity.ensembl]
 
       %dt Chromosome
       %dd= entity.chromosome
