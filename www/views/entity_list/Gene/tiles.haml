@@ -1,0 +1,34 @@
+- action_card = ActionCard.new
+ 
+= action_card_render action_card do
+
+  :sass
+    .list_tile .plot
+      display: flex
+      flex-wrap: wrap
+    .tile
+      max-width: 33%
+      flex-grow: 1
+      border: 1px solid black
+      margin: 1px !important
+      overflow: auto
+
+  .list_tile.plot(entity_type="Gene" list_id=list_id)
+
+:deferjs
+
+  rbbt.list_tile = [];
+
+  var plot = $('.list_tile.plot');
+  var entity_type = plot.attr('entity_type');
+  var list_id = plot.attr('list_id');
+  var list = new EntityList({id: list_id, type: entity_type});
+
+  var study = 'bladder-preal-17samples'
+  var rules = rbbt.plots.basic_rules(study)
+  var tile_plot = new rbbt.plots.list_plot(list, rules)
+
+  tile_plot.create_obj = rbbt.plots.tile_obj
+
+  m.mount(plot[0], tile_plot);
+

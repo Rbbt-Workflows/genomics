@@ -98,6 +98,11 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     }
     Gene=Gene{
      details.haml
+     tiles.haml
+     network.haml
+     svg.haml.save
+     network.haml.save
+     cell_svg.haml.save
     }
     GenomicMutation=GenomicMutation{
      mutation_details.haml
