@@ -1,34 +1,152 @@
-- action_card = ActionCard.new
+- studies = user_studies[user]
+- action_card = ActionCard.new do 
+  - input :study, :select, "Study code", nil, :select_options => studies
  
 = action_card_render action_card do
 
-  :sass
-    .list_tile .plot
-      display: flex
-      flex-wrap: wrap
-    .tile
-      max-width: 33%
-      flex-grow: 1
-      border: 1px solid black
-      margin: 1px !important
-      overflow: auto
+  - if defined? study and study
+    :sass
+      .list_tile .plot
+        &>.content
+          display: flex
+          flex-wrap: wrap
+          width: 0px
+          .gene_row
+            white-space: nowrap
+            flex-grow: none
+            flex-shrink: none
+            align-self: flex-start
+            display: flex
+            .row_header
+              width: 100px
+              display: inline-block
+              overflow: hidden
+              order: -100000
+            .tile
+              width: 1em
+              height: 1em
+              margin: 1px !important
+              display: inline-block
+              flex-grow: none
+              flex-shrink: none
+              .subtile
+                display: block
+                width: 1em
+                height: 0.5em
 
-  .list_tile.plot(entity_type="Gene" list_id=list_id)
+        .plot_header
+          white-space: nowrap
+          margin-left: 100px
+          margin-top: 100px
+          width: 100%
+          .column_header
+            transform: rotate(-90deg) 
+            height: 1em
+            width: calc(1em + 2px)
+            display: inline-block
 
-:deferjs
+    .list_tile.plot(entity_type="Gene" list_id=list_id)
 
-  rbbt.list_tile = [];
+    :deferjs
 
-  var plot = $('.list_tile.plot');
-  var entity_type = plot.attr('entity_type');
-  var list_id = plot.attr('list_id');
-  var list = new EntityList({id: list_id, type: entity_type});
+      rbbt.list_tile = [];
 
-  var study = 'bladder-preal-17samples'
-  var rules = rbbt.plots.basic_rules(study)
-  var tile_plot = new rbbt.plots.list_plot(list, rules)
+      var plot = $('.list_tile.plot');
+      var list = rbbt.page.list()
 
-  tile_plot.create_obj = rbbt.plots.tile_obj
+      var study = '#{study}'
+      var rules = rbbt.plots.basic_rules(study)
+      var study_entity = new Entity({type:'Study', code: study})
 
-  m.mount(plot[0], tile_plot);
+      rules = []
+      rules.push({aes: 'label', property: 'link'})
+      rules.push({aes: 'column-color1', knowledge_base: study, parents: 'sample_genes', field: 'mutated_isoform', map: 'direct'})
+      rules.push({aes: 'column-color2', knowledge_base: study, parents: 'sample_genes', field: 'broken', map: 'direct'})
+
+      rules.push({aes: 'column-order', knowledge_base: study, parents: 'sample_genes', field: 'overlapping', map: 'direct', extract: function(data, e){
+        var counts = {}
+        forHash(data, function(gene,gene_samples){
+          forHash(gene_samples, function(sample, mi){
+            if (mi == 'true'){
+              if (undefined === counts[sample]) counts[sample] = 0
+              counts[sample] = counts[sample] + 1
+            }
+          })
+        })
+        return counts
+      }})
+
+      rules.push({aes: 'order', knowledge_base: study, parents: 'sample_genes', field: 'overlapping', map: 'direct', extract: function(data, e){
+        var counts = {}
+        forHash(data, function(gene,gene_samples){
+          forHash(gene_samples, function(sample, mi){
+            if (mi == 'true'){
+              if (undefined === counts[gene]) counts[gene] = 0
+              counts[gene] = counts[gene] + 1
+            }
+          })
+        })
+        return counts[e]
+      }})
+
+      study_entity.property('samples').then(function(samples){
+
+        rbbt.plots.tile_obj = function(aes){
+          var tile_color1 = 'white'
+          var color1 = aes['color1']
+          if (color1){
+            if (color1 == 'true')
+              tile_color1 = 'red'
+            if (color1 == 'false')
+              tile_color1 = 'orange'
+          }
+
+          var tile_color2 = 'white'
+          var color2 = aes['color2']
+          if (color2){
+            if (color2 == 'true')
+              tile_color2 = 'red'
+            if (color2 == 'false')
+              tile_color2 = 'orange'
+          }
+          var subtile1 = m('.subtile', {title: aes.label + ' mutated', style:'background-color:' + tile_color1})
+          var subtile2 = m('.subtile', {title: aes.label + ' broken', style:'background-color:' + tile_color2})
+          var tile = m('.tile', {style: 'order:-'+ aes.order}, [subtile1, subtile2])
+
+          return tile
+        }
+
+        rbbt.plots.tile_row_obj = function(aes){
+          var params = {}
+          var header = m('.row_header', m.trust(aes.label))
+          var tiles = []
+          params.style = {order: "-" + aes.order}
+          forArray(samples, function(sample){
+            tile_aes = rbbt.aesthetics.column_aes(aes, sample)
+            tile = rbbt.plots.tile_obj(tile_aes)
+            tiles.push(tile)
+          })
+          return m('.gene_row', params, [header, tiles])
+        }
+
+        var tile_plot = new rbbt.plots.list_plot(list, rules)
+        tile_plot.create_obj = rbbt.plots.tile_row_obj
+
+        tile_plot.wrapper = function(objs){
+          if (undefined === objs){
+            rbbt.log("Loading")
+            return m('.ui.basic.segment.plot.loading', "Loading")
+          }else{
+            rbbt.log("Drawing")
+            var columns = []
+            forArray(samples, function(sample){
+              var params = {}
+              var column_header = m('.column_header', params, sample)
+              columns.push(column_header)
+            })
+            return m('.ui.basic.segment.plot', [m('.plot_header.clearfix', columns), m('.content', objs)])
+          }
+        }
+        m.mount(plot[0], tile_plot);
+      })
 
