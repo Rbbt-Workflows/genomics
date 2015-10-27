@@ -8,7 +8,6 @@ require 'rbbt/association'
 require 'rbbt/knowledge_base'
 
 require 'rbbt/sources/pina'
-require 'rbbt/sources/kegg'
 require 'rbbt/sources/go'
 require 'rbbt/sources/reactome'
 require 'rbbt/sources/NCI'
@@ -28,7 +27,12 @@ end
 Genomics.knowledge_base = KnowledgeBase.new Rbbt.var.knowledge_base.genomics, "Hsa/jan2013"
 Genomics.knowledge_base.format["Gene"] = "Ensembl Gene ID"
 
-Genomics.knowledge_base.register 'kegg'     , KEGG.gene_pathway
+begin
+  require 'rbbt/sources/kegg'
+  Genomics.knowledge_base.register 'kegg'     , KEGG.gene_pathway
+rescue
+  Log.debug "Could not build KEGG knowledge-base"
+end
 #Genomics.knowledge_base.register 'go'       , Organism.gene_go('NAMESPACE'), :merge => true
 Genomics.knowledge_base.register 'go_bp'    , Organism.gene_go_bp('NAMESPACE')
 Genomics.knowledge_base.register 'go_mf'    , Organism.gene_go_mf('NAMESPACE')
