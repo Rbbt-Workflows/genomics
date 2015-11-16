@@ -76,7 +76,7 @@
         return counts
       }})
 
-      rules.push({aes: 'order', knowledge_base: study, parents: 'sample_genes', field: 'overlapping', map: 'direct', extract: function(data, e){
+      rules.push({aes: 'order', knowledge_base: study, parents: 'sample_genes', field: 'mutated_isoform', map: 'direct', extract: function(data, e){
         var counts = {}
         forHash(data, function(gene,gene_samples){
           forHash(gene_samples, function(sample, mi){
@@ -98,7 +98,7 @@
             if (color1 == 'true')
               tile_color1 = 'red'
             if (color1 == 'false')
-              tile_color1 = 'orange'
+              tile_color1 = 'white'
           }
 
           var tile_color2 = 'white'
@@ -107,7 +107,7 @@
             if (color2 == 'true')
               tile_color2 = 'red'
             if (color2 == 'false')
-              tile_color2 = 'orange'
+              tile_color2 = 'white'
           }
           var subtile1 = m('.subtile', {title: aes.label + ' mutated', style:'background-color:' + tile_color1})
           var subtile2 = m('.subtile', {title: aes.label + ' broken', style:'background-color:' + tile_color2})
