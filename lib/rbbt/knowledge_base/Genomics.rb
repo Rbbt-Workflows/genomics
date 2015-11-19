@@ -33,6 +33,7 @@ begin
 rescue
   Log.debug "Could not build KEGG knowledge-base"
 end
+
 #Genomics.knowledge_base.register 'go'       , Organism.gene_go('NAMESPACE'), :merge => true
 Genomics.knowledge_base.register 'go_bp'    , Organism.gene_go_bp('NAMESPACE')
 Genomics.knowledge_base.register 'go_mf'    , Organism.gene_go_mf('NAMESPACE')
@@ -65,6 +66,7 @@ Genomics.knowledge_base.register "corum", CORUM.complexes,
   :source => "CORUM Complex ID",
   :target => "UniProt/SwissProt Accession"
 
+
 begin
   begin
     Workflow.require_workflow "Sample"
@@ -76,5 +78,15 @@ begin
   Genomics.knowledge_base.syndicate nil, PanCancer.knowledge_base
 rescue Exception
   Log.exception $!
+end
+
+begin
+  require 'rbbt/sources/MSigDB'
+  MSigDB.all_sets.produce.glob("*").sort.each do |set|
+    name = "MSigDB_" +File.basename(set)
+    Genomics.knowledge_base.register name, set
+  end
+rescue Exception
+  Log.warn "Could not build MSigDB knowledge-base"
 end
 
