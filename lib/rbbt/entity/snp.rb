@@ -6,10 +6,13 @@ module SNP
   self.format = ["SNP", "SNP ID", "RSID"]
 
   def self.dbSNP_info
-    @@dbSNP_info ||= DbSNP.rsids.tsv :persist => true
+    @@dbSNP_info ||= DbSNP.rsid_database.tap{|o| o.unnamed = false}
   end
 
   property :dbSNP_info => :array2single do
-    SNP.dbSNP_info.chunked_values_at self
+    db = SNP.dbSNP_info
+    self.collect{|e|
+      db[e]
+    }
   end
 end

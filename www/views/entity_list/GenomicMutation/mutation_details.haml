@@ -25,15 +25,22 @@
   - header "Worst Consequence", "Mutated Isoform", :organism => organism
   - table_options = nil
 
-  - tsv = TSV.setup({}, :key_field => "Genomic Mutation", :fields => ["Ref.", "SNP", "Genes", "Worst Consequence", "Type", "Relevant?", "Consequences"], :type => :double, :namespace => organism, :entity_options => {:watson => watson})
+  - tsv = TSV.setup({}, :key_field => "Genomic Mutation", :fields => ["Ref.", "SNP", "SNP CAF", "Genes", "Worst Consequence", "Type", "Relevant?", "Consequences"], :type => :double, :namespace => organism, :entity_options => {:watson => watson})
   - log :mutations, "Processing mutation info"
-  - rsindex = Genomes1000.job(:identify, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).run
+  -# rsindex = Genomes1000.job(:identify, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).run
+  - rsindex = DbSNP.job(:annotate, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).clean.run
+  - fields = rsindex.fields
+  - rsid_pos = 0
+  - caf_pos = fields.index "CAF"
+
 
   - list.each do |mutation|
     - mis = mutated_isoforms[mutation]
+    - rsvalues = rsindex[mutation.split(":")[0..2] * ":"]
     - values = []
     - values << (watson ? mutation.reference : mutation.gene_strand_reference)
-    - values << rsindex[mutation.split(":")[0..2] * ":"]
+    - values << (rsvalues ? rsvalues[rsid_pos] : nil)
+    - values << (rsvalues ? rsvalues[caf_pos] : nil)
     - values << mutation.genes
     - values << mutation.worst_consequence
     - values << mutation.type
