@@ -1,0 +1,7 @@
+- action_card = ActionCard.new do 
+  - input :principal, :boolean, "Consider only principal isoforms", true
+ 
+- action_card.require :principal
+= action_card_render action_card do
+  = table do
+    - Sequence.job(:sequence_ontology, list_id, :mutations => list, :principal => principal).run

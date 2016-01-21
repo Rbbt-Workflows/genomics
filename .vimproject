@@ -106,8 +106,9 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
      cell_svg.haml.save
     }
     GenomicMutation=GenomicMutation{
-     mutation_details.haml
      affected_domains.haml
+     mutation_consequence.haml
+     mutation_details.haml
     }
     Sample=Sample{
      differential_expression.check
