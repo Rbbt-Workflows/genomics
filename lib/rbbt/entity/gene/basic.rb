@@ -69,7 +69,7 @@ module Gene
   end
 
   property :max_transcript_length => :array2single do
-    transcripts.collect{|list| list.sequence_length.compact.max}
+    transcripts.collect{|list| list.nil? ? 0 : list.sequence_length.compact.max}
   end
 
   property :max_protein_length => :array2single do
