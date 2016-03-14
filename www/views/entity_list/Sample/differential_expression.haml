@@ -6,13 +6,13 @@
   - else
     - input :matrix, :string, "Matrix to use", study.matrices.first, :hide => true
   - input :contrast, :select, "Background list", nil, :select_options => {'none' => 'Rest of samples', 'genotyped' => "Genotyped samples"}, :html_options => {:class => 'favourite_lists', :type => 'Sample'}
-  - input :threshold, :float, "Significance threshold", 0.1
+  - input :threshold, :float, "Significance threshold for (non-adjusted) p-value", 0.1
 
  
 - action_card.require :threshold
 = action_card_render action_card do
   - type = matrix
-  - matrix = study.matrix(matrix, "Ensembl Gene ID")
+  - matrix = study.matrix(matrix)
 
   - case contrast
   - when nil, 'none'
@@ -22,8 +22,11 @@
   - else
     - rest = Entity::List.load_list("Sample", contrast, user)
 
-  - list = study.match_samples(list)
-  - rest = study.match_samples(rest) - list
+  - donor_field = study.sample_info.fields.select{|f| f =~ /specimen/}.first
+  - donor_field = nil
+  - donor_field = study.sample_info.fields.select{|f| f =~ /donor/}.first if donor_field.nil?
+  - list = study.match_samples(list, matrix.samples, donor_field)
+  - rest = study.match_samples(rest, matrix.samples, donor_field) - list
 
   - diffs = matrix.differential(list, rest)
 
@@ -34,9 +37,16 @@
 
   - threshold = threshold.to_f
 
-  
-  =table :caption => "Negative values are used to mark downregulation" do
-    - diffs.tsv :namespace => study.organism
+  =table :table_id => "Up-regulated genes" do
+    - tsv = diffs.tsv :namespace => study.organism
+    - tsv.select('p.values'){|v| v = v.to_f; v > 0 and v <= threshold }
+
+  =table :table_id => "Down-regulated genes" do
+    - tsv = diffs.tsv :namespace => study.organism
+    - new = tsv.annotate({})
+    - tsv.each do |k,v| new[k] = v.collect{|_v| - _v.to_f } end
+    - new.select('p.values'){|v| v > 0 and v <= threshold }
+
 -#
   - entities = nil
   = table :table_id => "Overexpressed (#{type}) in #{list_id}", :page => "1~p.values" do

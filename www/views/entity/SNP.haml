@@ -4,13 +4,16 @@
   - if info
     %dl.indented
       - info.zip(info.fields).each do |value,key|
-        %dt=key
-        %dd=value
+        - if key == "Genomic Mutation"
+          %dt=key
+          %dd=GenomicMutation.setup(value, nil, DbSNP.organism, true).link
+        - else
+          %dt=key
+          %dd=value
   - else
     not found in dbSNP
 
 
 - entity_card.action_controller = default_action_controller entity
 
-= entity_card_render entity_card
-
+= entity_card_render entity_card 

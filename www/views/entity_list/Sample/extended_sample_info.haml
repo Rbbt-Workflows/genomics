@@ -1,0 +1,27 @@
+- action_card = ActionCard.new 
+= action_card_render action_card do
+  = table do
+    - list.study.sample_extended_info.select do |k,v| 
+      - ([k,v].flatten & list).any?
+
+
+  = fragment do
+    - sample_info = list.study.sample_extended_info
+    - all_fields = sample_info.fields
+    - all_field_counts = Misc.process_to_hash(all_fields){|all_fields| all_fields.collect{|f| sample_info.slice(f).values.flatten.compact.uniq.length} }
+    - all_field_counts = Misc.process_to_hash(all_fields){|all_fields| all_fields.collect{|f| sample_info.slice(f).values.flatten.compact.uniq.length} }
+    - good_fields = all_field_counts.select{|f,c| c < sample_info.size.to_i / 10 }.collect{|f,c| f}
+
+    - if good_fields.length > 0
+
+      %h3 Field enrichment analysis
+      %dl.tabs
+        - good_fields.each do |field|
+          - enrichment = sample_info.select(field){|f| not (f.nil? or f.empty?)}.enrichment list, field, :cutoff => 0.1, :persist => false
+          - if enrichment.length > 0
+            %dt= field
+            %dd
+              - enrichment.entity_options = {:study => list.study}
+              = table do
+                - enrichment
+

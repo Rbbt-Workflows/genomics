@@ -113,6 +113,8 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
     Sample=Sample{
      differential_expression.check
      differential_expression.haml
+     extended_info.check
+     extended_info.haml
     }
    }
    entity_map=entity_map{

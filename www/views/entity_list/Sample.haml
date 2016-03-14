@@ -4,35 +4,26 @@
 - if list.study and TSV === list.study.sample_info and list.study.sample_info.fields.length > 0
   - entity_list_card.description do
     - sample_info = list.study.sample_info
+    - genotyped_samples = study.genotyped_samples
+    - if genotyped_samples.any?
+      - sample_info.add_field("Genotyped") do |sample,values|
+        - genotyped_samples.include? sample
+    - cnv_samples = study.cnv_samples
+    - if cnv_samples.any?
+      - sample_info.add_field("CNV") do |sample,values|
+        - cnv_samples.include? sample
+    - if study.matrices.any?
+      - study.matrices.each do |matrix|
+        - matrix_samples = study.matrix(matrix).samples
+        - sample_info.add_field("Matrix #{ matrix }") do |sample,values|
+          - matrix_samples.include? sample
 
     %p #{list.length} samples
 
     = fragment do
       = table :table_id => "Clinical features of #{ list_id }" do
-        - sample_info.select{|k,v| list.collect{|e| e.index(k) == 0}.any?}.tap{|t| t.entity_options = {:cohort => study}} 
-
-
-    -#
-      - sample_info = list.study.sample_info
-      - all_fields = sample_info.fields
-      - all_field_counts = Misc.process_to_hash(all_fields){|all_fields| all_fields.collect{|f| sample_info.slice(f).values.flatten.compact.uniq.length} }
-      - all_field_counts = Misc.process_to_hash(all_fields){|all_fields| all_fields.collect{|f| sample_info.slice(f).values.flatten.compact.uniq.length} }
-      - good_fields = all_field_counts.select{|f,c| c < sample_info.size.to_i / 10 }.collect{|f,c| f}
-
-      - if good_fields.length > 0
-
-        %h3 Field enrichment analysis
-        %dl.tabs
-          - good_fields.each do |field|
-            - enrichment = sample_info.enrichment list, field, :cutoff => 0.1
-            - enrichment.entity_options = {:study => list.study}
-            %dt= field
-            %dd
-              - if enrichment.length > 0
-                = table do
-                  - enrichment
-              - else
-                No enrichment
+        - sample_info.select do |k,v| 
+          - ([k,v].flatten & list).any?
 
 - entity_list_card.action_controller = default_action_controller list, list_id
 
