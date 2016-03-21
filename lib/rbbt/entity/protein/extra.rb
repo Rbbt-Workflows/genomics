@@ -35,7 +35,7 @@ module Protein
       end
     end
 
-    svg = svg.sub(/<svg /,"<svg attr-rbbt-entity='protein'")
+    svg = svg.sub(/<svg /,"<svg attr-rbbt-entity='protein' style='background-color:white;'")
     svg
   end
 

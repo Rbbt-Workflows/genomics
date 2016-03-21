@@ -1,0 +1,47 @@
+- study = list.study
+
+- action_card = ActionCard.new do
+  - input :gene, :string, "Gene"
+  - if study.matrices.length > 1
+    - input :matrix, :select, "Matrix to use", study.matrices.first, :select_options => study.matrices
+  - else
+    - input :matrix, :hidden, "Matrix to use", study.matrices.first
+
+- action_card.require :matrix, :gene
+= action_card_render action_card do
+  - type = matrix
+  - matrix = study.matrix(matrix).tsv(true)
+  - format = matrix.key_field 
+  - format = "Ensembl Gene ID" unless Entity.formats.include? format
+  - ensembl = Translation.translate(study.organism, format, [gene.strip]).first
+
+  - if ensembl and matrix[ensembl]
+    - values = matrix[ensembl]
+    - samples = values.fields
+    - if matrix.type == :double
+      - values = values.collect{|l| Misc.mean(l.collect{|v| v.to_f})}
+    - else
+      - values = values.collect{|l| l.to_f }
+    - hash = Hash[*samples.zip(values).flatten]
+    - TSV.setup(hash, :key_field => "Sample", :fields => ["Value"], :type => :single, :cast => :to_f)
+    - hash = hash.to_list
+    - matched_samples = study.match_samples(list, matrix.fields, 'submitted_donor_id')
+    - hash.add_field "Selection" do |k,v|
+      - matched_samples.include?(k) ? 'selected' : 'not selected'
+
+    = resource "#{ gene } expression in #{ type } matrix from #{ study }.png", nil, :image do |filename|
+      - R::PNG.plot(filename, hash, "data[data == 0] = NA; boxplot(Value ~ Selection, data=data, title='#{gene}')", 500,500)
+
+    %dl
+      %dt Selected values
+      %dd= hash.select("Selection" => "selected").column("Value").values.flatten.compact.collect{|v| v.to_f}.sort.collect{|v| "%.3f" % v} * ", "
+      %dt Not selected values
+      %dd= hash.select("Selection" => "not selected").column("Value").values.flatten.compact.collect{|v| v.to_f}.sort.collect{|v| "%.3f" % v} * ", "
+
+  - else
+    Gene not found
+
+    
+    
+
+
