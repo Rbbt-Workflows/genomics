@@ -58,7 +58,7 @@
     - mutation2samples = {}
 
     - tsv.add_field "User study samples" do |mutation, values|
-      - studies.collect{|study| study.knowledge_base.subset("sample_mutations", :source => :all, :target => [mutation]).source_entity.collect{|e| e.link } }.flatten
+      - studies.collect{|study| next unless study.genotyped_samples.any?; study.knowledge_base.subset("sample_mutations", :source => :all, :target => [mutation]).source_entity.collect{|e| e.link } }.flatten.compact
       
   = table table_options do
     - tsv

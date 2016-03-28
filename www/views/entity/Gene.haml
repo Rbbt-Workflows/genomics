@@ -91,25 +91,34 @@
           = "%.5g" % hotspot_stat
 
 
-- list_container = ListContainer.new
-- text = entity.name || entity
+- list_container = ListContainer.new do
+  - text = entity.name || entity
 
-- list_container.add "GeneRIF Articles for #{text}" do 
-  - entity.articles
+  - list_container.add "GeneRIF Articles for #{text}" do 
+    - entity.articles
 
-- kb = user_kb(user)
-- TSV.traverse kb.registry, :bar => true do |database,info|
-  - _entity = kb.identify database, entity
-  - children = kb.children(database, _entity).target_entity
-  - if not children.nil? and not children.empty? and children.respond_to? :base_type
-    - list_container.add "#{database} -- #{text} ->  #{children.base_type}", children
+  - kb = user_kb(user)
+  - TSV.traverse kb.registry, :bar => true do |database,info|
+    - _entity = kb.identify database, entity
+    - children = kb.children(database, _entity).target_entity
+    -# if not children.nil? and not children.empty? and children.respond_to? :base_type
+      - list_container.add "#{database} -- #{text} ->  #{children.base_type}", children
 
-  - next if kb.undirected database
+    - if not children.nil? and not children.empty? 
+      - if children.respond_to? :base_type
+        - list_container.add "#{database} --  #{text} ->  #{children.base_type}", children
+      - else 
+        - list_container.add "#{database} --  #{text} ->  #{kb.target_type(database)}", children
 
-  - kb.get_index(database)
-  - parents = kb.parents(database, _entity).target_entity
-  - if not parents.nil? and not parents.empty? and parents.respond_to? :base_type
-    - list_container.add "#{database} --  #{text} ->  #{parents.base_type}", parents
+    - next if kb.undirected database
+
+    - kb.get_index(database)
+    - parents = kb.parents(database, _entity).source_entity
+    - if not parents.nil? and not parents.empty? 
+      - if parents.respond_to? :base_type
+        - list_container.add "#{database} --  #{text} ->  #{parents.base_type}", parents
+      - else 
+        - list_container.add "#{database} --  #{text} ->  #{kb.source_type(database)}", parents
 
 - entity_card.list_container = list_container
 

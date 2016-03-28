@@ -3,6 +3,9 @@
   - info = entity.dbSNP_info
   - if info
     %dl.indented
+      %dt SNP in dbSNP
+      %dd
+        %a(href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=#{entity.sub('rs','')}")= entity
       - info.zip(info.fields).each do |value,key|
         - if key == "Genomic Mutation"
           %dt=key

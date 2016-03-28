@@ -3,5 +3,5 @@
  
 - action_card.require :principal
 = action_card_render action_card do
-  = table do
+  = table :span => :long do
     - Sequence.job(:sequence_ontology, list_id, :mutations => list, :principal => principal).run
