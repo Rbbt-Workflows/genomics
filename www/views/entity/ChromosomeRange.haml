@@ -12,11 +12,61 @@
 
 - entity_card.meta do
   %dl
+    - zoom_url = @fullpath
+    - chr,start,eend = entity.split(":")
+    - zoom_url.sub!(start,'START')
+    - zoom_url.sub!(eend,'END')
+    - start = start.to_i
+    - eend = eend.to_i
+
+    %dt Size
+    %dd
+      = eend - start
+
+    %dt Zoom out
+    %dd
+      .ui.buttons
+        %a.ui.button(href="#{zoom_url.sub("START",(start-100).to_s).sub("END", (eend+100).to_s)}") 100
+        %a.ui.button(href="#{zoom_url.sub("START",(start-1000).to_s).sub("END", (eend+1000).to_s)}") 1K
+        %a.ui.button(href="#{zoom_url.sub("START",(start-10_000).to_s).sub("END", (eend+10_000).to_s)}") 10K
+        %a.ui.button(href="#{zoom_url.sub("START",(start-100_000).to_s).sub("END", (eend+100_000).to_s)}") 100K
+        %a.ui.button(href="#{zoom_url.sub("START",(start-1_000_000).to_s).sub("END", (eend+1_000_000).to_s)}") 1MB
+
+    %dt Zoom in
+    %dd
+      .ui.buttons
+        %a.ui.button(href="#{zoom_url.sub("START",(start+100).to_s).sub("END", (eend-100).to_s)}") 100
+        %a.ui.button(href="#{zoom_url.sub("START",(start+1000).to_s).sub("END", (eend-1000).to_s)}") 1K
+        %a.ui.button(href="#{zoom_url.sub("START",(start+10_000).to_s).sub("END", (eend-10_000).to_s)}") 10K
+        %a.ui.button(href="#{zoom_url.sub("START",(start+100_000).to_s).sub("END", (eend-100_000).to_s)}") 100K
+        %a.ui.button(href="#{zoom_url.sub("START",(start+1_000_000).to_s).sub("END", (eend-1_000_000).to_s)}") 1MB
+
+    %dt Shift left
+    %dd
+      .ui.buttons
+        %a.ui.button(href="#{zoom_url.sub("START",(start-100).to_s).sub("END", (eend-100).to_s)}") 100
+        %a.ui.button(href="#{zoom_url.sub("START",(start-1000).to_s).sub("END", (eend-1000).to_s)}") 1K
+        %a.ui.button(href="#{zoom_url.sub("START",(start-10_000).to_s).sub("END", (eend-10_000).to_s)}") 10K
+        %a.ui.button(href="#{zoom_url.sub("START",(start-100_000).to_s).sub("END", (eend-100_000).to_s)}") 100K
+        %a.ui.button(href="#{zoom_url.sub("START",(start-1_000_000).to_s).sub("END", (eend-1_000_000).to_s)}") 1MB
+
+    %dt Shift right
+    %dd
+      .ui.buttons
+        %a.ui.button(href="#{zoom_url.sub("START",(start+100).to_s).sub("END", (eend+100).to_s)}") 100
+        %a.ui.button(href="#{zoom_url.sub("START",(start+1000).to_s).sub("END", (eend+1000).to_s)}") 1K
+        %a.ui.button(href="#{zoom_url.sub("START",(start+10_000).to_s).sub("END", (eend+10_000).to_s)}") 10K
+        %a.ui.button(href="#{zoom_url.sub("START",(start+100_000).to_s).sub("END", (eend+100_000).to_s)}") 100K
+        %a.ui.button(href="#{zoom_url.sub("START",(start+1_000_000).to_s).sub("END", (eend+1_000_000).to_s)}") 1MB
+
     %dt Broswer
     %dd
-      %a(href="#{entity.ensembl_browser}") Ensembl
-    %dd
-      %a(href="#{entity.ucsc_browser}") UCSC
+      %ul.clean_list
+        %li
+          %a(href="#{entity.ensembl_browser}") Ensembl
+        %li
+          %a(href="#{entity.ucsc_browser}") UCSC
+
 
 
 
@@ -47,7 +97,10 @@
     end
     svg = p.get_markup
 
-  = svg
+  :sass
+    .ui.segment.chromosome_range > svg
+      background-color: white
+  .ui.segment.chromosome_range= svg
 
 = entity_card_render entity_card
 
