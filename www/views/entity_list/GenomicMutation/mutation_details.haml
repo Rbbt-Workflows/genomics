@@ -2,7 +2,19 @@
 - Workflow.require_workflow "Genomes1000"
 - require 'rbbt/sources/genomes1000/entity'
 
-= action_card_render ActionCard.new do
+- if user
+  - studies = respond_to?(:user_studies)? user_studies[user] || [] : []
+- else
+  - studies = []
+
+- genotype_studies = studies.collect{|s| Study.setup(s)}.select{|s| s.genotyped_samples.any?}
+
+- action_card =  ActionCard.new do
+  - input :study, :select, "Study to report samples from", "all", :select_options => ["all"] + genotype_studies  
+
+- action_card.require :study
+= action_card_render action_card do
+  - study = 'all' unless defined? study
   - organism = list.organism
   - watson = list.watson
   - watson = false if watson == "false"
@@ -52,17 +64,24 @@
   - tsv
 
   - if user
-    - studies = respond_to?(:user_studies)? user_studies[user] || [] : []
-    - study = studies.select{|s| list_id =~ / #{s}$/}.first
-    - studies = [study] if study
+    - if study and not study.to_s == 'all'
+      - studies = [study]
+    - else
+      - studies = genotype_studies
+
     - mutation2samples = {}
 
+    - incidence = {} 
+    - studies.collect do |study|
+      - Study.setup(study)
+      - study.knowledge_base.subset("sample_mutations", :source => :all, :target => mutations).each do |item|
+        - mutation = item.target
+        - sample = item.source_entity.link
+        - incidence[mutation] ||= []
+        - incidence[mutation] << sample
+
     - tsv.add_field "User study samples" do |mutation, values|
-      - studies.collect do |study| 
-        - Study.setup(study)
-        - next unless study.genotyped_samples.any?
-        - ind =  study.knowledge_base.get_index("sample_mutations")
-        - study.knowledge_base.subset("sample_mutations", :source => :all, :target => [mutation]).source_entity.collect{|e| e.link }.flatten.compact
+      - incidence[mutation]
       
-  = table table_options do
+  = table :span => :long do
     - tsv
