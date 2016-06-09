@@ -40,7 +40,7 @@
   - tsv = TSV.setup({}, :key_field => "Genomic Mutation", :fields => ["Ref.", "SNP", "SNP CAF", "Genes", "Worst Consequence", "Type", "Relevant?", "Consequences"], :type => :double, :namespace => organism, :entity_options => {:watson => watson})
   - log :mutations, "Processing mutation info"
   -# rsindex = Genomes1000.job(:identify, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).run
-  - rsindex = DbSNP.job(:annotate, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).clean.run
+  - rsindex = DbSNP.job(:annotate, nil, :mutations => list.collect{|m| m.split(":")[0..2] * ":"}).run
   - fields = rsindex.fields
   - rsid_pos = 0
   - caf_pos = fields.index "CAF"
