@@ -28,8 +28,10 @@ Genomics.knowledge_base = KnowledgeBase.new Rbbt.var.knowledge_base.genomics, "H
 Genomics.knowledge_base.format["Gene"] = "Ensembl Gene ID"
 
 begin
-  require 'rbbt/sources/kegg'
-  Genomics.knowledge_base.register 'kegg'     , KEGG.gene_pathway
+  Log.with_severity 7 do
+    require 'rbbt/sources/kegg'
+    Genomics.knowledge_base.register 'kegg'     , KEGG.gene_pathway
+  end
 rescue
   Log.debug "Could not build KEGG knowledge-base"
 end
@@ -68,16 +70,9 @@ Genomics.knowledge_base.register "corum", CORUM.complexes,
 
 
 begin
-  begin
-    Workflow.require_workflow "Sample"
-    Workflow.require_workflow "PanCancer"
-  rescue
-  end
-
-  require 'rbbt/knowledge_base/pancancer'
-  Genomics.knowledge_base.syndicate nil, PanCancer.knowledge_base
+  Workflow.require_workflow "Sample"
 rescue Exception
-  Log.exception $!
+  Log.error $!.message
 end
 
 begin
