@@ -98,7 +98,8 @@
     - entity.articles
 
   - kb = user_kb(user)
-  - TSV.traverse kb.registry, :bar => true do |database,info|
+  - TSV.traverse kb.registry.keys, :bar => true do |database|
+    - info = kb.registry[database]
     - _entity = kb.identify database, entity
     - children = kb.children(database, _entity).target_entity
     -# if not children.nil? and not children.empty? and children.respond_to? :base_type

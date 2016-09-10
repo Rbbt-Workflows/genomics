@@ -22,9 +22,11 @@
   - else
     - rest = Entity::List.load_list("Sample", contrast, user)
 
-  - donor_field = study.sample_info.fields.select{|f| f =~ /specimen/}.first
   - donor_field = nil
+  - donor_field = study.sample_info.fields.select{|f| f =~ /rna_sample/}.first if donor_field.nil?
+  - donor_field = study.sample_info.fields.select{|f| f =~ /specimen/}.first if donor_field.nil?
   - donor_field = study.sample_info.fields.select{|f| f =~ /donor/}.first if donor_field.nil?
+
   - list = study.match_samples(list, matrix.samples, donor_field)
   - rest = study.match_samples(rest, matrix.samples, donor_field) - list
 
