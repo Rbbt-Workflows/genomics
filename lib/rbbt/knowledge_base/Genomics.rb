@@ -24,7 +24,7 @@ module Genomics
   end
 end
 
-Genomics.knowledge_base = KnowledgeBase.new Rbbt.var.knowledge_base.genomics, "Hsa/jan2013"
+Genomics.knowledge_base = KnowledgeBase.new Rbbt.var.knowledge_base.genomics, "Hsa/feb2014"
 Genomics.knowledge_base.format["Gene"] = "Ensembl Gene ID"
 
 begin
