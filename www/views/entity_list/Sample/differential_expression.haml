@@ -23,6 +23,7 @@
     - rest = Entity::List.load_list("Sample", contrast, user)
 
   - donor_field = nil
+  - donor_field = study.sample_info.fields.select{|f| f =~ /RNA/i and f =~ /tumou?r/i}.first if donor_field.nil?
   - donor_field = study.sample_info.fields.select{|f| f =~ /rna_sample/}.first if donor_field.nil?
   - donor_field = study.sample_info.fields.select{|f| f =~ /specimen/}.first if donor_field.nil?
   - donor_field = study.sample_info.fields.select{|f| f =~ /donor/}.first if donor_field.nil?
