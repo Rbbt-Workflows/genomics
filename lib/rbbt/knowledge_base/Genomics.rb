@@ -57,7 +57,7 @@ Genomics.knowledge_base.register "pina", Pina.protein_protein,
 
 Genomics.knowledge_base.register 'matador' do    
   tsv = Matador.protein_drug.tsv :merge => true
-  tsv.identifiers = Organism.identifiers("Hsa/jan2013")
+  tsv.identifiers = Organism.identifiers("Hsa/feb2014")
   tsv = tsv.change_key "Ensembl Gene ID"
   tsv
 end
