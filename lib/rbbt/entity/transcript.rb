@@ -1,4 +1,5 @@
 require 'rbbt/entity'
+require 'rbbt/entity/exon'
 
 module Transcript
   extend Entity
@@ -37,7 +38,7 @@ module Transcript
 
   def self.enst2ense(organism, transcript)
     @@enst2ense ||= {}
-    @@enst2ense[organism] ||= Organism.transcript_exons(organism).tsv(:persist => true, :fields => "Ensembl Exon ID", :unnamed => true)
+    @@enst2ense[organism] ||= Organism.transcript_exons(organism).tsv(:persist => true, :fields => ["Ensembl Exon ID"], :type => :flat, :unnamed => true)
     res = if Array === transcript
             @@enst2ense[organism].chunked_values_at transcript
           else
@@ -47,7 +48,7 @@ module Transcript
   end
 
   property :exons => :array2single do 
-    Transcript.enst2ense(organism, self)
+    Exon.setup(Transcript.enst2ense(organism, self), organism)
   end
 
   property :ensembl => :array2single do

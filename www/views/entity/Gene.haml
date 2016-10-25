@@ -39,6 +39,10 @@
       %dt Strand
       %dd= entity.strand == "1" ? "Forward (Watson) Strand" : "Reverse (Crick) Strand"
 
+      %dt Gene bases
+      %dd
+        = entity.chr_range.end.to_i - entity.chr_range.begin.to_i
+
       %dt Exon bases
       %dd
         - genes = entity.make_list.ensembl

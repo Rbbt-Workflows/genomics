@@ -82,6 +82,6 @@ begin
     Genomics.knowledge_base.register name, set
   end
 rescue Exception
-  Log.warn "Could not build MSigDB knowledge-base"
+  Log.warn "Could not build MSigDB knowledge-base: #{$!.message}"
 end
 

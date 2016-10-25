@@ -25,7 +25,16 @@
     - hash = Hash[*samples.zip(values).flatten]
     - TSV.setup(hash, :key_field => "Sample", :fields => ["Value"], :type => :single, :cast => :to_f)
     - hash = hash.to_list
-    - matched_samples = study.match_samples(list, matrix.fields, 'submitted_donor_id')
+
+
+    - donor_field = nil
+    - donor_field = study.sample_info.fields.select{|f| f =~ /RNA/i and f =~ /tumou?r/i}.first if donor_field.nil?
+    - donor_field = study.sample_info.fields.select{|f| f =~ /rna_sample/}.first if donor_field.nil?
+    - donor_field = study.sample_info.fields.select{|f| f =~ /specimen/}.first if donor_field.nil?
+    - donor_field = study.sample_info.fields.select{|f| f =~ /donor/}.first if donor_field.nil?
+
+    - matched_samples = study.match_samples(list, matrix.fields, donor_field)
+
     - hash.add_field "Selection" do |k,v|
       - matched_samples.include?(k) ? 'selected' : 'not selected'
 

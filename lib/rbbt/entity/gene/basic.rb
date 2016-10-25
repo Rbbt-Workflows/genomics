@@ -5,6 +5,12 @@ require 'rbbt/entity/transcript'
 
 module Gene
 
+  def self.exons(gene, organism)
+    @@gene_exons ||= {}
+    @@gene_exons[organism] ||= Organism.exons(organism).tsv :key_field => "Ensembl Gene ID", :fields => ["Ensembl Exon ID"], :type => :flat, :persist => true, :unnamed => true
+    @@gene_exons[organism][gene]
+  end
+
   property :strand => :array2single do 
     @@strand_tsv ||= {}
     @@strand_tsv[organism] ||= Organism.gene_positions(organism).tsv(:fields => ["Strand"], :type => :single, :persist => true, :unnamed => true)
@@ -87,4 +93,12 @@ module Gene
     Gene.setup(Organism[organism]["ortholog_#{other}"].tsv(:persist => true, :unnamed => true).chunked_values_at(self.ensembl).collect{|l| l.first}, "Ensembl Gene ID", new_organism)
   end
 
+  property :principal_transcripts => :single do
+    pi = Appris::PRINCIPAL_TRANSCRIPTS
+    Transcript.setup((transcripts & pi.to_a), "Ensembl Transcript ID", organism)
+  end
+
+  property :exons => :single do
+    Exon.setup(Gene.exons(self, organism), organism)
+  end
 end
