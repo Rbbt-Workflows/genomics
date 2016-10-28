@@ -47,6 +47,8 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
 
     transcript.rb
 
+    exon.rb
+
     chromosome_range.rb
 
     cnv.rb

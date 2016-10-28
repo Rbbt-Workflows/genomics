@@ -121,9 +121,9 @@
     - parents = kb.parents(database, _entity).source_entity
     - if not parents.nil? and not parents.empty? 
       - if parents.respond_to? :base_type
-        - list_container.add "#{database} --  #{text} ->  #{parents.base_type}", parents
+        - list_container.add "#{database} --  #{parents.base_type} -> #{text}", parents
       - else 
-        - list_container.add "#{database} --  #{text} ->  #{kb.source_type(database)}", parents
+        - list_container.add "#{database} --  #{kb.source_type(database)} -> #{text}", parents
 
 - entity_card.list_container = list_container
 
