@@ -66,7 +66,7 @@ Genomics.knowledge_base.register 'gene_ages', Rbbt.share.gene_ages.find(:lib), :
 
 Genomics.knowledge_base.register "corum", CORUM.complexes, 
   :source => "CORUM Complex ID",
-  :target => "UniProt/SwissProt Accession"
+  :target => "subunits(UniProt IDs)=~UniProt/SwissProt Accession"
 
 
 begin
