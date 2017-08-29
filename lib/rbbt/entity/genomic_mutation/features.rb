@@ -9,6 +9,15 @@ module GenomicMutation
     genes
   end
 
+  property :affected_genes => :array2single do
+    genes_tsv = Sequence.job(:affected_genes, jobname, :organism => organism, :positions => self.clean_annotations).run
+    genes_tsv.unnamed = true
+    genes = nil
+    genes = genes_tsv.chunked_values_at self
+    Gene.setup(genes, "Ensembl Gene ID", organism)
+    genes
+  end
+
   property :affected_exons  => :array2single do
     Sequence.job(:exons_at_genomic_positions, jobname, :organism => organism, :positions => self.clean_annotations).run.chunked_values_at self
   end
