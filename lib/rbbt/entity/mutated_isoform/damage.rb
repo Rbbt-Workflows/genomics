@@ -76,7 +76,7 @@ module MutatedIsoform
 
   property :dbNSFP => :array2single do 
     missense = self.select{|mutation| mutation.consequence == "MISS-SENSE"}
-    DbNSFP.job(:annotate, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
+    DbNSFP.job(:score, "MutatedIsoforms (#{self.length})", :mutations => missense.sort, :organism => organism).run
   end
 
   property :dbNSFP_field => :array2single do |field|
