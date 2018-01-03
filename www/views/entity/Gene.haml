@@ -118,7 +118,7 @@
     - next if kb.undirected database
 
     - kb.get_index(database)
-    - parents = kb.parents(database, _entity).source_entity
+    - parents = kb.parents(database, _entity).target_entity
     - if not parents.nil? and not parents.empty? 
       - if parents.respond_to? :base_type
         - list_container.add "#{database} --  #{parents.base_type} -> #{text}", parents
