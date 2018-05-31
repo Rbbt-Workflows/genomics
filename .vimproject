@@ -127,4 +127,8 @@ Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml
    }
   }
  }
+
+ share=share filter="*"{
+  gene_ages
+ }
 }
