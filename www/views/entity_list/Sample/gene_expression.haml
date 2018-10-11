@@ -39,10 +39,10 @@
       - matched_samples.include?(k) ? 'selected' : 'not selected'
 
     = resource "#{ gene } expression boxplot in #{ type } matrix from #{ study }.png", nil, :image do |filename|
-      - R::PNG.plot(filename, hash, "data[data == 0] = NA; boxplot(Value ~ Selection, data=data, title='#{gene}')", 500,500)
+      - R::PNG.plot(filename, hash, "data[data == 0] = NA; boxplot(Value ~ Selection, data=data, main='#{gene} expression')", 500,500)
 
     = resource "#{ gene } expression density in #{ type } matrix from #{ study }.png", nil, :image do |filename|
-      - R::PNG.plot(filename, hash, "data[data == 0] = NA; plot(density(data$Value, title='#{gene}', na.rm=T)); rug(data$Value, na.rm=T); rug(data$Value[data$Selection == 'selected'], na.rm=T, col = 'red')", 500,500)
+      - R::PNG.plot(filename, hash, "data[data == 0] = NA; plot(density(data$Value, na.rm=T), main='#{gene} expression'); rug(data$Value, na.rm=T); rug(data$Value[data$Selection == 'selected'], na.rm=T, col = 'red')", 500,500)
 
 
     %dl
