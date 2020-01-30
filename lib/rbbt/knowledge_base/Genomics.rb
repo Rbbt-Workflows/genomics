@@ -50,10 +50,10 @@ Genomics.knowledge_base.register 'biocarta' , NCI.biocarta_pathways            ,
 #Genomics.knowledge_base.register 'tfacts'   , TFacts.regulators        ,:type => :flat,
 #  :source => "Transcription Factor Associated Gene Name=~Associated Gene Name", :merge => true, :undirected => false
 
-#Genomics.knowledge_base.register "pina", Pina.protein_protein, 
-#  :undirected => true, 
-#  :source => "UniProt/SwissProt Accession",
-#  :target => "Interactor UniProt/SwissProt Accession=~UniProt/SwissProt Accession"
+Genomics.knowledge_base.register "pina", Pina.protein_protein, 
+  :undirected => true, 
+  :source => "UniProt/SwissProt Accession",
+  :target => "Interactor UniProt/SwissProt Accession=~UniProt/SwissProt Accession"
 
 #Genomics.knowledge_base.register 'matador' do    
 #  tsv = Matador.protein_drug.tsv :merge => true
@@ -67,6 +67,14 @@ Genomics.knowledge_base.register 'gene_ages', Rbbt.share.gene_ages.find(:lib), :
 Genomics.knowledge_base.register "corum", CORUM.complexes, 
   :source => "CORUM Complex ID",
   :target => "subunits(UniProt IDs)=~UniProt/SwissProt Accession"
+
+begin
+  #Workflow.require_workflow "ExTRI"
+  #Genomics.knowledge_base.register 'pairs', ExTRI.job(:pairs).produce.path, :source => "Transcription Factor (Associated Gene Name)", :target => "Target Gene (Associated Gene Name)", :merge => true, :type => :double
+  #Genomics.knowledge_base.register 'tf_tg', ExTRI.job(:regulon).produce.path, :merge => true, :type => :double
+rescue Exception
+  Log.exception $!
+end
 
 
 begin

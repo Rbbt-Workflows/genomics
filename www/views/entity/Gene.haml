@@ -18,6 +18,9 @@
 
       %dd
         %a(href="http://www.ncbi.nlm.nih.gov/gene/#{entity.to "Entrez Gene ID"}")= entity.to "Entrez Gene ID"
+    %dt Gene in COSMIC: 
+    %dd
+      %a(href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=#{entity.name}")= entity.name
 
   = fragment :details do 
     - gene_biotype = Organism.gene_biotype(entity.organism).tsv :persist => true

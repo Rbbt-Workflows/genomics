@@ -16,7 +16,7 @@ module MutatedIsoform
 
   property :protein => :array2single do
     proteins = self.collect{|mutation| 
-      mutation.split(":").first if mutation[0..3] == "ENSP"
+      mutation.split(":").first if mutation =~ /^ENS[A-Z]*P/
     }
     Protein.setup(proteins, "Ensembl Protein ID", organism)
   end
