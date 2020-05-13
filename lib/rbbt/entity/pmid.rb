@@ -1,5 +1,5 @@
 require 'rbbt/entity'
-require 'rbbt/entity/document'
+require 'rbbt/document'
 require 'rbbt/sources/pubmed'
 require 'rbbt/sources/gscholar'
 
