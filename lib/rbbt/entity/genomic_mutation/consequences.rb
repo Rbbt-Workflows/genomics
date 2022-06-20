@@ -127,12 +127,12 @@ module GenomicMutation
 
     in_exon_junction?(gene).zip(mutated_isoforms, type).collect{|ej,mis,type|
       case
-      when (mis.nil? or mis.subset(non_synonymous_mutated_isoforms).empty? and ej and not type == 'none')
+      when (mis.nil? or (mis & non_synonymous_mutated_isoforms).empty? and ej and not type == 'none')
         "In Exon Junction"
-      when (Array === mis and mis.subset(truncated_mutated_isoforms).any?)
+      when (Array === mis and (mis & truncated_mutated_isoforms).any?)
         mis.subset(truncated_mutated_isoforms).first
-      when (Array === mis and mis.subset(non_synonymous_mutated_isoforms).any?)
-        mis.subset(non_synonymous_mutated_isoforms).sort{|mi1, mi2| 
+      when (Array === mis and (mis & non_synonymous_mutated_isoforms).any?)
+        (mis & non_synonymous_mutated_isoforms).sort{|mi1, mi2| 
           ds1 = damage_scores[mi1] || 0
           ds2 = damage_scores[mi2] || 0
           case
