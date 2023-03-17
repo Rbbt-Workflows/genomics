@@ -64,9 +64,9 @@ Genomics.knowledge_base.register "pina", Pina.protein_protein,
 
 Genomics.knowledge_base.register 'gene_ages', Rbbt.share.gene_ages.find(:lib), :merge => true, :type => :double
 
-Genomics.knowledge_base.register "corum", CORUM.complexes, 
-  :source => "CORUM Complex ID",
-  :target => "subunits(UniProt IDs)=~UniProt/SwissProt Accession"
+#Genomics.knowledge_base.register "corum", CORUM.complexes, 
+#  :source => "CORUM Complex ID",
+#  :target => "subunits(UniProt IDs)=~UniProt/SwissProt Accession"
 
 begin
   #Workflow.require_workflow "ExTRI"
