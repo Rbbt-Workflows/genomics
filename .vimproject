@@ -1,6 +1,64 @@
 Genomics=/$PWD filter="*.config *.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf *.check" {
  workflow.rb
  lib=lib {
+  Genomics=Genomics{
+   tasks=tasks{
+    sample.rb
+    sample=sample{
+     cnv.rb
+
+     genes.rb
+     genes=genes{
+      activity.rb
+      alterations.rb
+      oncogenes.rb
+      tumor_suppressors.rb
+     }
+
+     genomic_mutations.rb
+
+     mutated_isoforms.rb
+     mutated_isoforms=mutated_isoforms{
+      annotations.rb
+      consequence.rb
+      damage.rb
+     }
+
+     snv.rb
+     snv=snv{
+      common.rb
+      damage.rb
+      drugs.rb
+      features.rb
+      genes.rb
+      genomic_mutations.rb
+      maf.rb
+      mutated_isoforms.rb
+      structureppi.rb
+      vcf.rb
+      zygosity.rb
+     }
+     vcf.rb
+    }
+
+    study.rb
+    study=study{
+     cnv.rb
+     expression.rb
+     genotypes.rb
+     maf.rb
+     samples.rb
+     snv.rb
+     snv=snv{
+      cohort.rb
+     }
+     }
+   }
+   entity=entity{
+    sample.rb
+    study.rb
+   }
+  }
   rbbt=rbbt{
    entity=entity{
     gene.rb

@@ -94,7 +94,7 @@ module Gene
   end
 
   property :principal_transcripts => :single do
-    pi = Appris::PRINCIPAL_TRANSCRIPTS
+    pi = Appris.principal_transcript_list
     Transcript.setup((transcripts & pi.to_a), "Ensembl Transcript ID", organism)
   end
 

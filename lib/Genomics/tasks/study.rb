@@ -1,0 +1,6 @@
+require_relative 'study/cnv'
+require_relative 'study/expression'
+require_relative 'study/genotypes'
+require_relative 'study/maf'
+require_relative 'study/samples'
+require_relative 'study/snv'

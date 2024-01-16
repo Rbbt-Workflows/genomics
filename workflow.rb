@@ -8,6 +8,12 @@ require 'rbbt/entity/genomic_mutation'
 
 require 'rbbt/knowledge_base/Genomics'
 
+require 'Genomics/tasks/sample.rb' if defined?(Sample) && Workflow === Sample
+require 'Genomics/entity/sample.rb' if defined?(Sample) && Entity === Sample
+
+require 'Genomics/tasks/study.rb' if defined?(Study) && Workflow === Study
+require 'Genomics/entity/study.rb' if defined?(Study) && Entity === Study
+
 module Genomics
   extend Workflow
 
@@ -113,3 +119,4 @@ their human-friendly names.
   task :names => :tsv 
   export_synchronous :names
 end
+
