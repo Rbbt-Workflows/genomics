@@ -18,9 +18,6 @@ module GenomicMutation
   self.annotation :organism
   self.annotation :watson
 
-  # ToDo: forgot if this is still used :/
-  self.masked_annotations = [:jobname]
-
   self.format = "Genomic Mutation"
 
 end
